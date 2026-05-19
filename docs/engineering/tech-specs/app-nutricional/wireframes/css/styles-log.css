@@ -1,0 +1,515 @@
+/* Log-flow specific styles on top of styles.css + styles-perfil.css */
+
+/* ---- date picker --------------------------------------------------- */
+
+.date-picker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 6px 0;
+  font-size: 16px;
+}
+.date-picker.compact { padding: 0; gap: 10px; font-size: 15px; }
+.date-label {
+  font-family: var(--display);
+  font-size: 20px;
+}
+.font-clean .date-label { font-weight: 700; letter-spacing: -0.3px; }
+.chev {
+  color: var(--ink-3);
+  font-size: 18px;
+  width: 24px; height: 24px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--gray-2);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.sketch-low .chev { border-style: solid; }
+.chev.big { width: 28px; height: 28px; font-size: 20px; }
+.chev.down { border: none; font-size: 16px; }
+
+/* ---- calorie summary block (Var A) -------------------------------- */
+
+.kcal-summary {
+  border: 1.75px dashed var(--ink);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #fffefb;
+}
+.sketch-low .kcal-summary { border-style: solid; border-color: var(--gray-2); box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+
+.kcal-summary-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.kcal-big {
+  font-family: var(--display);
+  font-size: 30px;
+  line-height: 1;
+  color: var(--ink);
+}
+.font-clean .kcal-big { font-weight: 700; letter-spacing: -0.5px; }
+.kcal-slash { color: var(--ink-3); font-size: 22px; }
+.kcal-goal { font-size: 15px; color: var(--ink-2); }
+.kcal-sub { font-size: 12px; color: var(--ink-3); margin-top: 6px; }
+
+.kcal-bar {
+  margin-top: 8px;
+  height: 8px;
+  background: var(--gray-1);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--gray-2);
+}
+.kcal-bar-fill {
+  height: 100%;
+  background: var(--ink);
+  border-radius: 4px;
+}
+
+/* ---- ring summary (Var B) ----------------------------------------- */
+
+.kcal-ring {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.ring-svg {
+  position: relative;
+  width: 120px; height: 120px;
+  flex: 0 0 auto;
+}
+.ring-svg svg { display: block; }
+.ring-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+}
+.ring-big {
+  font-family: var(--display);
+  font-size: 26px;
+  line-height: 1;
+}
+.font-clean .ring-big { font-weight: 700; letter-spacing: -0.5px; }
+.ring-sub { font-size: 11px; color: var(--ink-3); }
+.ring-side {
+  flex: 1 1 auto;
+  display: flex; flex-direction: column;
+  gap: 6px;
+}
+.ring-side-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  padding: 6px 8px;
+  border-bottom: 1px dashed var(--gray-2);
+}
+.sketch-low .ring-side-row { border-bottom-style: solid; }
+.ring-side-row:last-child { border-bottom: none; }
+.ring-side-row span:first-child {
+  font-family: var(--display);
+  font-size: 18px;
+  color: var(--ink-2);
+  width: 18px;
+}
+.font-clean .ring-side-row span:first-child { font-weight: 700; font-family: var(--hand); }
+
+/* ---- kcal hero (Var C) ------------------------------------------- */
+
+.kcal-hero {
+  padding: 14px 16px;
+}
+.kcal-hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+}
+.kcal-hero-big {
+  font-family: var(--display);
+  font-size: 36px;
+  line-height: 1;
+}
+.font-clean .kcal-hero-big { font-weight: 700; letter-spacing: -1px; }
+.kcal-hero-of { font-size: 18px; color: var(--ink-3); }
+.kcal-hero-lab { font-size: 12px; color: var(--ink-3); margin-top: 4px; }
+.kcal-hero-stat { text-align: right; }
+.kcal-hero-stat-val {
+  font-family: var(--display);
+  font-size: 24px;
+  line-height: 1;
+}
+.font-clean .kcal-hero-stat-val { font-weight: 700; }
+.kcal-hero-stat-lab { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+
+.macro-mini {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.macro-mini b { font-weight: 700; color: var(--ink); margin-right: 4px; }
+.font-clean .macro-mini b { font-family: inherit; }
+
+/* ---- meal section (Var A) ----------------------------------------- */
+
+.meal-section { margin-bottom: 16px; }
+.meal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0 4px 6px;
+  border-bottom: 1.5px dashed var(--ink);
+  margin-bottom: 6px;
+}
+.sketch-low .meal-head { border-bottom-style: solid; border-bottom-color: var(--gray-2); }
+.meal-title {
+  font-family: var(--display);
+  font-size: 22px;
+  color: var(--ink);
+}
+.font-clean .meal-title { font-weight: 700; font-size: 16px; letter-spacing: -0.2px; }
+.meal-total {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.meal-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 4px;
+  border-bottom: 1px dashed var(--gray-2);
+  position: relative;
+}
+.sketch-low .meal-item { border-bottom-style: solid; }
+.meal-item:last-child { border-bottom: none; }
+.meal-item-name { flex: 1 1 auto; font-size: 15px; }
+.meal-item-qty { font-size: 12px; color: var(--ink-3); margin-top: 1px; }
+.meal-item-kcal { font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+
+.swipe-hint {
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 9px;
+  color: var(--ink-3);
+  display: flex; align-items: center; gap: 1px;
+  opacity: 0.5;
+}
+.swipe-hint .arrow { font-size: 12px; }
+
+.meal-empty {
+  padding: 10px 4px;
+  font-size: 13px;
+  color: var(--ink-3);
+  font-style: italic;
+}
+
+.meal-add {
+  margin-top: 6px;
+  padding: 8px 4px;
+  font-size: 14px;
+  color: var(--ink);
+  border: 1.5px dashed var(--ink);
+  border-radius: 8px;
+  text-align: center;
+}
+.sketch-low .meal-add { border-style: solid; border-color: var(--gray-2); }
+
+/* ---- timeline (Var B) -------------------------------------------- */
+
+.timeline {
+  position: relative;
+  padding-left: 12px;
+}
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 56px;
+  top: 6px; bottom: 6px;
+  width: 1.5px;
+  border-left: 1.5px dashed var(--gray-2);
+}
+.sketch-low .timeline::before { border-left-style: solid; }
+
+.tl-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--gray-2);
+}
+.sketch-low .tl-entry { border-bottom-style: solid; }
+.tl-entry:last-child { border-bottom: none; }
+.tl-entry.empty { opacity: 0.6; }
+
+.tl-time {
+  width: 38px;
+  font-size: 12px;
+  color: var(--ink-3);
+  text-align: right;
+  padding-top: 2px;
+}
+.tl-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  margin-top: 4px;
+  flex: 0 0 auto;
+  z-index: 1;
+}
+.tl-entry.empty .tl-dot { background: transparent; border-style: dashed; }
+.tl-body { flex: 1 1 auto; }
+.tl-meal {
+  font-family: var(--display);
+  font-size: 18px;
+  line-height: 1.1;
+}
+.font-clean .tl-meal { font-weight: 700; font-size: 14px; letter-spacing: -0.1px; }
+.tl-name {
+  font-size: 13px;
+  color: var(--ink-2);
+  margin-top: 2px;
+}
+.tl-kcal {
+  font-size: 13px;
+  color: var(--ink-2);
+  padding-top: 2px;
+  white-space: nowrap;
+}
+
+/* ---- meal card (Var C) ------------------------------------------- */
+
+.meal-card-c {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 1.5px dashed var(--ink);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  background: #fffefb;
+}
+.sketch-low .meal-card-c { border-style: solid; border-color: var(--gray-2); box-shadow: 0 1px 4px rgba(0,0,0,.04); }
+
+.mcc-title {
+  font-family: var(--display);
+  font-size: 20px;
+  line-height: 1;
+}
+.font-clean .mcc-title { font-weight: 700; font-size: 15px; letter-spacing: -0.2px; }
+.mcc-sub { font-size: 12px; color: var(--ink-3); margin-top: 4px; }
+.mcc-right { display: flex; align-items: center; gap: 12px; }
+.mcc-kcal {
+  font-family: var(--display);
+  font-size: 22px;
+}
+.font-clean .mcc-kcal { font-weight: 700; font-size: 16px; }
+.mcc-kcal span { font-size: 11px; color: var(--ink-3); margin-left: 2px; }
+.mcc-add {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  background: var(--paper);
+}
+
+/* ---- meal picker / chips ----------------------------------------- */
+
+.meal-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 6px;
+}
+.meal-pick {
+  padding: 8px 6px;
+  font-size: 12px;
+  text-align: center;
+  border: 1.5px solid var(--gray-2);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink-2);
+}
+.meal-pick.active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.chat-meal-tag {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.chat-meal-chip {
+  padding: 4px 10px;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+.chat-prompt {
+  font-family: var(--display);
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+.font-clean .chat-prompt { font-weight: 600; font-size: 22px; letter-spacing: -0.3px; }
+
+.suggest-chips {
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.chip {
+  font-size: 12px;
+  padding: 5px 10px;
+  border: 1.5px dashed var(--ink-3);
+  border-radius: 999px;
+  color: var(--ink-2);
+}
+.sketch-low .chip { border-style: solid; border-color: var(--gray-2); }
+
+/* ---- textarea ---------------------------------------------------- */
+
+.textarea {
+  border: 1.75px dashed var(--ink);
+  border-radius: 12px;
+  padding: 14px;
+  min-height: 140px;
+  background: var(--paper);
+}
+.sketch-low .textarea { border-style: solid; border-color: var(--gray-2); }
+.textarea.big { min-height: 180px; }
+.ta-placeholder {
+  color: var(--ink-3);
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.5;
+}
+.font-clean .ta-placeholder { font-style: normal; }
+
+/* dropdown row */
+.dropdown-row {
+  display: flex; justify-content: space-between; align-items: center;
+  border: 1.5px dashed var(--ink);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 15px;
+  background: var(--paper);
+}
+.sketch-low .dropdown-row { border-style: solid; border-color: var(--gray-2); }
+
+/* ---- confirm card ------------------------------------------------- */
+
+.confirm-card {
+  border: 1.75px dashed var(--ink);
+  border-radius: 14px;
+  padding: 16px;
+  background: #fffefb;
+  margin-bottom: 12px;
+}
+.sketch-low .confirm-card { border-style: solid; border-color: var(--gray-2); box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+
+.confirm-name {
+  font-family: var(--display);
+  font-size: 22px;
+  line-height: 1.15;
+}
+.confirm-name.big { font-size: 26px; }
+.font-clean .confirm-name { font-weight: 600; font-size: 18px; letter-spacing: -0.2px; }
+.font-clean .confirm-name.big { font-size: 22px; }
+.confirm-qty { font-size: 13px; color: var(--ink-3); margin-top: 4px; }
+
+.macro-rows { margin-top: 14px; }
+.macro-row {
+  display: flex; justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--gray-2);
+  font-size: 14px;
+}
+.sketch-low .macro-row { border-bottom-style: solid; }
+.macro-row:last-child { border-bottom: none; }
+.macro-row b { font-weight: 700; }
+
+.hint.center { text-align: center; }
+.hint u { text-decoration-style: wavy; text-underline-offset: 3px; }
+.sketch-low .hint u, .font-clean .hint u { text-decoration-style: solid; }
+
+/* ---- macro tiles (Var B confirm) --------------------------------- */
+
+.macro-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.macro-tile {
+  border: 1.5px dashed var(--ink);
+  border-radius: 12px;
+  padding: 12px 8px;
+  text-align: center;
+  background: #fffefb;
+}
+.sketch-low .macro-tile { border-style: solid; border-color: var(--gray-2); }
+.macro-tile.big {
+  grid-column: span 3;
+  padding: 16px 8px;
+}
+.m-val {
+  font-family: var(--display);
+  font-size: 28px;
+  line-height: 1;
+}
+.macro-tile.big .m-val { font-size: 40px; }
+.font-clean .m-val { font-weight: 700; letter-spacing: -0.5px; }
+.m-lab { font-size: 11px; color: var(--ink-3); margin-top: 4px; }
+
+/* ---- macro bars (Var C confirm) ---------------------------------- */
+
+.macro-bars { display: flex; flex-direction: column; gap: 10px; }
+.macro-bar { font-size: 13px; }
+.macro-bar-head {
+  display: flex; justify-content: space-between;
+  margin-bottom: 4px;
+  color: var(--ink-2);
+}
+.macro-bar-head b { font-weight: 700; color: var(--ink); }
+.macro-bar-track {
+  height: 6px;
+  background: var(--gray-1);
+  border-radius: 3px;
+  border: 1px solid var(--gray-2);
+  overflow: hidden;
+}
+.macro-bar-fill {
+  height: 100%;
+  background: var(--ink);
+  border-radius: 3px;
+}
+
+.confirm-pill {
+  display: inline-block;
+  font-size: 10px;
+  padding: 3px 8px;
+  background: var(--gray-1);
+  border-radius: 999px;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.confirm-kcal-row {
+  display: flex; justify-content: space-between;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1.5px dashed var(--gray-2);
+  font-size: 14px;
+}
+.sketch-low .confirm-kcal-row { border-top-style: solid; }
+.confirm-kcal-row b { font-weight: 700; font-size: 16px; }

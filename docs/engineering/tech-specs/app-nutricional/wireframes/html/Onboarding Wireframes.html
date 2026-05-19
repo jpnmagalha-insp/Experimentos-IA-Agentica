@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <title>Onboarding — Wireframes</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Patrick+Hand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* page-level frame for the canvas */
+    html, body { margin: 0; height: 100%; }
+    #root { min-height: 100vh; }
+    .legend {
+      font-family: "Caveat", cursive;
+      font-size: 18px;
+      color: #6b5b46;
+      margin: 4px 0 0;
+      letter-spacing: 0.3px;
+    }
+  </style>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="screens.jsx"></script>
+
+  <script type="text/babel">
+    const { useEffect } = React;
+
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "sketchiness": "low",
+      "accent": true,
+      "font": "clean"
+    }/*EDITMODE-END*/;
+
+    // 390×844 = iPhone 14. Add a little vertical headroom so the phone tag fits.
+    const W = 410, H = 900;
+
+    function App() {
+      const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+      useEffect(() => {
+        const body = document.body;
+        body.classList.toggle("sketch-low", t.sketchiness === "low");
+        body.classList.toggle("sketch-high", t.sketchiness === "high");
+        body.classList.toggle("no-accent", !t.accent);
+        body.classList.toggle("font-clean", t.font === "clean");
+      }, [t]);
+
+      return (
+        <>
+          <DesignCanvas>
+            <DCSection
+              id="A"
+              title="A · Clássico generoso"
+              subtitle="Layout vertical, espaçamento amplo, CTAs no fluxo do conteúdo. Mais próximo do brief original."
+            >
+              <DCArtboard id="A1" label="01 · Boas-vindas" width={W} height={H}><A1_Welcome /></DCArtboard>
+              <DCArtboard id="A2" label="02 · Cadastro" width={W} height={H}><A2_Signup /></DCArtboard>
+              <DCArtboard id="A3" label="03 · Login" width={W} height={H}><A3_Login /></DCArtboard>
+              <DCArtboard id="A4" label="04 · Sobre você" width={W} height={H}><A4_Body1 /></DCArtboard>
+              <DCArtboard id="A5" label="05 · Dados físicos" width={W} height={H}><A5_Body2 /></DCArtboard>
+            </DCSection>
+
+            <DCSection
+              id="B"
+              title="B · CTA ancorado no rodapé"
+              subtitle="Conteúdo no topo, botão principal preso ao rodapé. Padrão mobile moderno — alvo de toque sempre na mesma posição."
+            >
+              <DCArtboard id="B1" label="01 · Boas-vindas" width={W} height={H}><B1_Welcome /></DCArtboard>
+              <DCArtboard id="B2" label="02 · Cadastro" width={W} height={H}><B2_Signup /></DCArtboard>
+              <DCArtboard id="B3" label="03 · Login" width={W} height={H}><B3_Login /></DCArtboard>
+              <DCArtboard id="B4" label="04 · Sobre você" width={W} height={H}><B4_Body1 /></DCArtboard>
+              <DCArtboard id="B5" label="05 · Dados físicos" width={W} height={H}><B5_Body2 /></DCArtboard>
+            </DCSection>
+
+            <DCSection
+              id="C"
+              title="C · Cartões agrupados"
+              subtitle="Campos agrupados em cards. Hierarquia explícita entre obrigatórios e opcionais — mais leve cognitivamente."
+            >
+              <DCArtboard id="C1" label="01 · Boas-vindas" width={W} height={H}><C1_Welcome /></DCArtboard>
+              <DCArtboard id="C2" label="02 · Cadastro" width={W} height={H}><C2_Signup /></DCArtboard>
+              <DCArtboard id="C3" label="03 · Login" width={W} height={H}><C3_Login /></DCArtboard>
+              <DCArtboard id="C4" label="04 · Sobre você" width={W} height={H}><C4_Body1 /></DCArtboard>
+              <DCArtboard id="C5" label="05 · Dados físicos" width={W} height={H}><C5_Body2 /></DCArtboard>
+            </DCSection>
+          </DesignCanvas>
+
+          <TweaksPanel title="Tweaks">
+            <TweakSection label="Estilo">
+              <TweakRadio
+                label="Sketchiness"
+                value={t.sketchiness}
+                onChange={(v) => setTweak("sketchiness", v)}
+                options={[
+                  { label: "Limpo", value: "low" },
+                  { label: "Médio", value: "medium" },
+                  { label: "Solto", value: "high" },
+                ]}
+              />
+              <TweakRadio
+                label="Tipografia"
+                value={t.font}
+                onChange={(v) => setTweak("font", v)}
+                options={[
+                  { label: "À mão", value: "hand" },
+                  { label: "Sans", value: "clean" },
+                ]}
+              />
+              <TweakToggle
+                label="Acento de cor"
+                value={t.accent}
+                onChange={(v) => setTweak("accent", v)}
+              />
+            </TweakSection>
+          </TweaksPanel>
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

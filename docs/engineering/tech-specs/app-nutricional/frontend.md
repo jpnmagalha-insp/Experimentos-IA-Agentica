@@ -2,17 +2,17 @@
 
 ## Stack
 
-| Tecnologia | Versão | Uso |
-|------------|--------|-----|
-| React Native | 0.74 | Base cross-platform |
-| Expo SDK | 51 | Build, auth, secure storage |
-| React Navigation | 6 | Navegação entre telas |
-| Zustand | 4 | Estado global (auth, user) |
-| TanStack Query | 5 | Cache e sincronização com API |
-| Axios | 1.6 | HTTP client com interceptors |
-| React Hook Form + Zod | 7 + 3 | Formulários com validação type-safe |
-| NativeWind | 4 | Tailwind CSS para React Native |
-| Expo SecureStore | — | Armazenamento seguro de tokens JWT |
+| Tecnologia            | Versão | Uso                                 |
+| --------------------- | ------ | ----------------------------------- |
+| React Native          | 0.74   | Base cross-platform                 |
+| Expo SDK              | 51     | Build, auth, secure storage         |
+| React Navigation      | 6      | Navegação entre telas               |
+| Zustand               | 4      | Estado global (auth, user)          |
+| TanStack Query        | 5      | Cache e sincronização com API       |
+| Axios                 | 1.6    | HTTP client com interceptors        |
+| React Hook Form + Zod | 7 + 3  | Formulários com validação type-safe |
+| NativeWind            | 4      | Tailwind CSS para React Native      |
+| Expo SecureStore      | —      | Armazenamento seguro de tokens JWT  |
 
 ---
 
@@ -46,24 +46,34 @@ graph TD
 
 ## Telas
 
+Os protótipos de cada tela estão disponíveis em docs/engineering/tech-specs/app-nutricional/wireframes/, organizados em três subpastas:
+
+html/ — versão HTML estática
+css/ — estilos correspondentes
+jsx/ — componentes React para referência de implementação
+
 ### Auth Stack
 
 #### `LoginScreen`
+
 - Campos: e-mail, senha
 - Botões: "Entrar", "Entrar com Google", "Entrar com Apple"
 - Links: "Esqueci minha senha" → `ForgotPasswordScreen` | "Criar conta" → `RegisterScreen`
 - Estado de loading no botão durante autenticação
 
 #### `RegisterScreen`
+
 - Campos: nome, e-mail, senha, confirmação de senha
 - Validação em tempo real com Zod
 - Feedback de força da senha
 
 #### `ForgotPasswordScreen`
+
 - Campo: e-mail
 - Exibe mensagem genérica de sucesso independente de o e-mail existir
 
 #### `OnboardingScreen`
+
 - Fluxo em steps (React Navigation ou scroll paginado):
   1. Data de nascimento (DatePicker nativo)
   2. Sexo (botões de toggle)
@@ -78,9 +88,11 @@ graph TD
 ### App Tabs
 
 #### `DailyLogScreen` (tab Home)
+
 Tela principal do app.
 
 **Layout**:
+
 ```
 ┌─────────────────────────────────┐
 │ ← Seg 13/01    hoje    Qui 15/01→ │  (navegação de data)
@@ -105,12 +117,14 @@ Tela principal do app.
 - "+ Add" → abre `FoodSearchScreen` como modal
 
 #### `FoodSearchScreen` (modal)
+
 - Input de busca com debounce de 300ms
 - Lista de resultados da API com nome, calorias/100g e categoria
 - Estado vazio: "Nenhum alimento encontrado"
 - Estado de loading: skeleton list
 
 #### `FoodDetailScreen` (modal após selecionar alimento)
+
 - Exibe nome e macro table do alimento
 - Toggle: gramas / medidas caseiras
   - Gramas: input numérico
@@ -121,7 +135,9 @@ Tela principal do app.
 ---
 
 #### `DailyReportScreen` (tab Relatório)
+
 **Layout**:
+
 ```
 ┌─────────────────────────────────┐
 │  Terça, 14 de Janeiro           │
@@ -144,11 +160,13 @@ Tela principal do app.
 ---
 
 #### `ProfileScreen` (tab Perfil)
+
 - Exibe nome, e-mail, idade calculada, sexo, altura, peso, % gordura, TMB
 - Botão "Editar" → `EditProfileScreen`
 - Botão "Sair" com confirmação
 
 #### `EditProfileScreen`
+
 - Formulário com campos pré-preenchidos do perfil atual
 - Validação antes de salvar
 - Exibe nova TMB calculada em preview antes de confirmar
@@ -159,18 +177,18 @@ Tela principal do app.
 
 ```typescript
 interface AuthStore {
-  user: User | null
-  accessToken: string | null
-  refreshToken: string | null
-  isAuthenticated: boolean
-  login: (tokens: Tokens, user: User) => void
-  logout: () => void
-  setTokens: (tokens: Tokens) => void
+  user: User | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  isAuthenticated: boolean;
+  login: (tokens: Tokens, user: User) => void;
+  logout: () => void;
+  setTokens: (tokens: Tokens) => void;
 }
 
 interface AppStore {
-  selectedDate: string  // YYYY-MM-DD
-  setSelectedDate: (date: string) => void
+  selectedDate: string; // YYYY-MM-DD
+  setSelectedDate: (date: string) => void;
 }
 ```
 
@@ -180,12 +198,12 @@ Os tokens são persistidos no `Expo SecureStore`. Na inicialização do app, o `
 
 ## Queries TanStack Query
 
-| Hook | Endpoint | Cache key |
-|------|----------|-----------|
-| `useCurrentUser` | GET /users/me | `['user', 'me']` |
-| `useFoodSearch(q)` | GET /foods/search?q= | `['foods', 'search', q]` |
-| `useDailyLog(date)` | GET /logs?date= | `['logs', date]` |
-| `useDailyReport(date)` | GET /reports/daily?date= | `['report', date]` |
+| Hook                   | Endpoint                 | Cache key                |
+| ---------------------- | ------------------------ | ------------------------ |
+| `useCurrentUser`       | GET /users/me            | `['user', 'me']`         |
+| `useFoodSearch(q)`     | GET /foods/search?q=     | `['foods', 'search', q]` |
+| `useDailyLog(date)`    | GET /logs?date=          | `['logs', date]`         |
+| `useDailyReport(date)` | GET /reports/daily?date= | `['report', date]`       |
 
 Mutações de log (`addLog`, `updateLog`, `deleteLog`) invalidam `['logs', date]` e `['report', date]`.
 
