@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.local
+*.env
+.DS_Store
+
+# Prisma
+prisma/migrations/*.sql.bak
+
+# Expo
+apps/mobile/.expo/
+apps/mobile/ios/
+apps/mobile/android/

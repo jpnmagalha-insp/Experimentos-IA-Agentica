@@ -1,0 +1,10 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@nutri-ia/shared": ["../../packages/shared/src"],
+      "@nutri-ia/shared/*": ["../../packages/shared/src/*"]
+    }
+  }
+}

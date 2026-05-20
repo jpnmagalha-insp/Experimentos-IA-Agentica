@@ -1,0 +1,116 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [unaccent]
+}
+
+model User {
+  id            String            @id @default(uuid())
+  name          String
+  email         String            @unique
+  passwordHash  String?           @map("password_hash")
+  provider      String            @default("email")
+  providerId    String?           @map("provider_id")
+  emailVerified Boolean           @default(false) @map("email_verified")
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+  profile       UserProfile?
+  foodLogs      FoodLog[]
+  goals         NutritionalGoal[]
+
+  @@map("users")
+}
+
+model UserProfile {
+  id             String   @id @default(uuid())
+  userId         String   @unique @map("user_id")
+  birthDate      DateTime @map("birth_date") @db.Date
+  sex            Sex
+  heightCm       Float    @map("height_cm")
+  weightKg       Float    @map("weight_kg")
+  bodyFatPercent Float?   @map("body_fat_percent")
+  tmb            Float
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model NutritionalGoal {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  calories     Int
+  proteinG     Float    @map("protein_g")
+  fatG         Float    @map("fat_g")
+  carbG        Float    @map("carb_g")
+  calculatedAt DateTime @default(now()) @map("calculated_at")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("nutritional_goals")
+}
+
+model Food {
+  id              String        @id @default(uuid())
+  name            String
+  tacoId          String?       @unique @map("taco_id")
+  caloriesPer100g Float         @map("calories_per_100g")
+  proteinPer100g  Float         @map("protein_per_100g")
+  fatPer100g      Float         @map("fat_per_100g")
+  carbPer100g     Float         @map("carb_per_100g")
+  category        String?
+  measures        FoodMeasure[]
+  logs            FoodLog[]
+
+  @@index([name])
+  @@map("foods")
+}
+
+model FoodMeasure {
+  id              String    @id @default(uuid())
+  foodId          String    @map("food_id")
+  description     String
+  gramsEquivalent Float     @map("grams_equivalent")
+  food            Food      @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  logs            FoodLog[]
+
+  @@map("food_measures")
+}
+
+model FoodLog {
+  id            String       @id @default(uuid())
+  userId        String       @map("user_id")
+  foodId        String       @map("food_id")
+  logDate       DateTime     @map("log_date") @db.Date
+  mealType      MealType     @map("meal_type")
+  quantity      Float
+  unit          String       @default("g")
+  foodMeasureId String?      @map("food_measure_id")
+  calories      Float
+  proteinG      Float        @map("protein_g")
+  fatG          Float        @map("fat_g")
+  carbG         Float        @map("carb_g")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  food          Food         @relation(fields: [foodId], references: [id])
+  foodMeasure   FoodMeasure? @relation(fields: [foodMeasureId], references: [id])
+
+  @@index([userId, logDate])
+  @@map("food_logs")
+}
+
+enum Sex {
+  male
+  female
+}
+
+enum MealType {
+  breakfast
+  lunch
+  dinner
+  snack
+}
