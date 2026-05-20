@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <title>Log alimentar — Wireframes</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Patrick+Hand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles-perfil.css" />
+  <link rel="stylesheet" href="styles-log.css" />
+  <style>
+    html, body { margin: 0; height: 100%; }
+    #root { min-height: 100vh; }
+  </style>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <!-- screens.jsx → Field/Btn; screens-perfil.jsx → PhoneP/TopBar/TopAction/BottomNav -->
+  <script type="text/babel" src="screens.jsx"></script>
+  <script type="text/babel" src="screens-perfil.jsx"></script>
+  <script type="text/babel" src="screens-log.jsx"></script>
+
+  <script type="text/babel">
+    const { useEffect } = React;
+
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "sketchiness": "low",
+      "accent": true,
+      "font": "clean"
+    }/*EDITMODE-END*/;
+
+    const W = 410, H = 900;
+
+    function App() {
+      const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+      useEffect(() => {
+        const body = document.body;
+        body.classList.toggle("sketch-low", t.sketchiness === "low");
+        body.classList.toggle("sketch-high", t.sketchiness === "high");
+        body.classList.toggle("no-accent", !t.accent);
+        body.classList.toggle("font-clean", t.font === "clean");
+      }, [t]);
+
+      return (
+        <>
+          <DesignCanvas>
+            <DCSection
+              id="A"
+              title="A · Lista por refeição"
+              subtitle="Refeições como seções rígidas (Café/Almoço/Lanche/Jantar). Resumo calórico em bloco no topo. Swipe nos itens edita/remove."
+            >
+              <DCArtboard id="LA1" label="01 · Log do dia" width={W} height={H}><LogA_Day /></DCArtboard>
+              <DCArtboard id="LA2" label="02 · Adicionar item" width={W} height={H}><LogA_Add /></DCArtboard>
+              <DCArtboard id="LA3" label="03 · Confirmar macros" width={W} height={H}><LogA_Confirm /></DCArtboard>
+            </DCSection>
+
+            <DCSection
+              id="B"
+              title="B · Timeline + anel"
+              subtitle="Anel de calorias + macros como hero; refeições numa timeline cronológica com horários. Mais visual, menos rígido."
+            >
+              <DCArtboard id="LB1" label="01 · Log do dia" width={W} height={H}><LogB_Day /></DCArtboard>
+              <DCArtboard id="LB2" label="02 · Adicionar item" width={W} height={H}><LogB_Add /></DCArtboard>
+              <DCArtboard id="LB3" label="03 · Confirmar macros" width={W} height={H}><LogB_Confirm /></DCArtboard>
+            </DCSection>
+
+            <DCSection
+              id="C"
+              title="C · Cards compactos"
+              subtitle="Refeições como cards de uma linha (mais escaneável); tap entra no detalhe. Macros do item com barras relativas à meta."
+            >
+              <DCArtboard id="LC1" label="01 · Log do dia" width={W} height={H}><LogC_Day /></DCArtboard>
+              <DCArtboard id="LC2" label="02 · Adicionar item" width={W} height={H}><LogC_Add /></DCArtboard>
+              <DCArtboard id="LC3" label="03 · Confirmar macros" width={W} height={H}><LogC_Confirm /></DCArtboard>
+            </DCSection>
+          </DesignCanvas>
+
+          <TweaksPanel title="Tweaks">
+            <TweakSection label="Estilo">
+              <TweakRadio
+                label="Sketchiness"
+                value={t.sketchiness}
+                onChange={(v) => setTweak("sketchiness", v)}
+                options={[
+                  { label: "Limpo", value: "low" },
+                  { label: "Médio", value: "medium" },
+                  { label: "Solto", value: "high" },
+                ]}
+              />
+              <TweakRadio
+                label="Tipografia"
+                value={t.font}
+                onChange={(v) => setTweak("font", v)}
+                options={[
+                  { label: "À mão", value: "hand" },
+                  { label: "Sans", value: "clean" },
+                ]}
+              />
+              <TweakToggle
+                label="Acento de cor"
+                value={t.accent}
+                onChange={(v) => setTweak("accent", v)}
+              />
+            </TweakSection>
+          </TweaksPanel>
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

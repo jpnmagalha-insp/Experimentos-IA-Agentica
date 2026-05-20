@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <title>Relatório — Wireframes</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Patrick+Hand&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles-perfil.css" />
+  <link rel="stylesheet" href="styles-log.css" />
+  <link rel="stylesheet" href="styles-relatorio.css" />
+  <link rel="stylesheet" href="styles-historico.css" />
+  <style>
+    html, body { margin: 0; height: 100%; }
+    #root { min-height: 100vh; }
+  </style>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="screens.jsx"></script>
+  <script type="text/babel" src="screens-perfil.jsx"></script>
+  <script type="text/babel" src="screens-log.jsx"></script>
+  <script type="text/babel" src="screens-relatorio.jsx"></script>
+  <script type="text/babel" src="screens-historico.jsx"></script>
+
+  <script type="text/babel">
+    const { useEffect } = React;
+
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "sketchiness": "low",
+      "accent": true,
+      "font": "clean"
+    }/*EDITMODE-END*/;
+
+    const W = 410, H = 900;
+
+    function App() {
+      const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+      useEffect(() => {
+        const body = document.body;
+        body.classList.toggle("sketch-low", t.sketchiness === "low");
+        body.classList.toggle("sketch-high", t.sketchiness === "high");
+        body.classList.toggle("no-accent", !t.accent);
+        body.classList.toggle("font-clean", t.font === "clean");
+      }, [t]);
+
+      return (
+        <>
+          <DesignCanvas>
+            <DCSection
+              id="H"
+              title="Histórico (entrada do Relatório)"
+              subtitle="Visão mensal — tap em um dia abre o relatório detalhado daquele dia. 3 tratamentos do grid."
+            >
+              <DCArtboard id="HA" label="A · Calendário clássico" width={W} height={H}><HistA /></DCArtboard>
+              <DCArtboard id="HB" label="B · Heatmap contínuo" width={W} height={H}><HistB /></DCArtboard>
+              <DCArtboard id="HC" label="C · Lista vertical" width={W} height={H}><HistC /></DCArtboard>
+            </DCSection>
+
+            <DCSection
+              id="A"
+              title="A · Hierarquia em blocos"
+              subtitle="Fiel ao brief: bloco principal de calorias com status em destaque, macros como linhas com barras, refeições como lista enxuta."
+            >
+              <DCArtboard id="RA1" label="01 · Dia completo" width={W} height={H}><RepA_Day /></DCArtboard>
+              <DCArtboard id="RA2" label="02 · Dia vazio" width={W} height={H}><RepA_Empty /></DCArtboard>
+            </DCSection>
+
+            <DCSection
+              id="B"
+              title="B · Anel hero + pills"
+              subtitle="Anel grande de calorias como herói visual, status numa pill; macros em 3 pills lado a lado com letras P/G/C."
+            >
+              <DCArtboard id="RB1" label="01 · Dia completo" width={W} height={H}><RepB_Day /></DCArtboard>
+              <DCArtboard id="RB2" label="02 · Dia vazio" width={W} height={H}><RepB_Empty /></DCArtboard>
+            </DCSection>
+
+            <DCSection
+              id="C"
+              title="C · Dashboard de tiles"
+              subtitle="Calorias em tile com status compacto; macros como 3 mini-anéis (% da meta) — mais 'painel' / data-dense."
+            >
+              <DCArtboard id="RC1" label="01 · Dia completo" width={W} height={H}><RepC_Day /></DCArtboard>
+              <DCArtboard id="RC2" label="02 · Dia vazio" width={W} height={H}><RepC_Empty /></DCArtboard>
+            </DCSection>
+          </DesignCanvas>
+
+          <TweaksPanel title="Tweaks">
+            <TweakSection label="Estilo">
+              <TweakRadio
+                label="Sketchiness"
+                value={t.sketchiness}
+                onChange={(v) => setTweak("sketchiness", v)}
+                options={[
+                  { label: "Limpo", value: "low" },
+                  { label: "Médio", value: "medium" },
+                  { label: "Solto", value: "high" },
+                ]}
+              />
+              <TweakRadio
+                label="Tipografia"
+                value={t.font}
+                onChange={(v) => setTweak("font", v)}
+                options={[
+                  { label: "À mão", value: "hand" },
+                  { label: "Sans", value: "clean" },
+                ]}
+              />
+              <TweakToggle
+                label="Acento de cor"
+                value={t.accent}
+                onChange={(v) => setTweak("accent", v)}
+              />
+            </TweakSection>
+          </TweaksPanel>
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

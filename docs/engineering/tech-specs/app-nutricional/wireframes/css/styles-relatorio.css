@@ -1,0 +1,299 @@
+/* Relatório-specific styles on top of styles.css + perfil + log */
+
+/* ---- generic report blocks ---------------------------------------- */
+
+.rep-block { margin-bottom: 18px; }
+
+.rep-primary {
+  border: 1.75px dashed var(--ink);
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: #fffefb;
+}
+.sketch-low .rep-primary {
+  border-style: solid; border-color: var(--gray-2);
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.rep-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.rep-kcal-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.rep-kcal-big {
+  font-family: var(--display);
+  font-size: 40px;
+  line-height: 1;
+}
+.rep-kcal-big.xl { font-size: 52px; }
+.font-clean .rep-kcal-big { font-weight: 700; letter-spacing: -1px; }
+.rep-kcal-slash {
+  font-size: 24px;
+  color: var(--ink-3);
+}
+.rep-kcal-goal {
+  font-size: 16px;
+  color: var(--ink-2);
+}
+
+.rep-status {
+  font-family: var(--display);
+  font-size: 18px;
+  color: var(--ink);
+  margin-top: 8px;
+}
+.font-clean .rep-status { font-weight: 700; letter-spacing: -0.2px; font-size: 14px; }
+.rep-status.is-empty { color: var(--ink-3); font-style: italic; }
+.font-clean .rep-status.is-empty { font-style: normal; }
+.rep-status.pill {
+  display: inline-block;
+  padding: 6px 14px;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  font-size: 14px;
+  margin-top: 0;
+}
+.font-clean .rep-status.pill { font-size: 13px; font-weight: 600; }
+.rep-status.compact { font-size: 13px; margin-top: 2px; }
+
+.rep-section-title {
+  font-family: var(--display);
+  font-size: 22px;
+  margin: 4px 0 10px;
+}
+.font-clean .rep-section-title {
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--ink-3);
+}
+
+.kcal-bar.tall { height: 12px; border-radius: 6px; }
+.kcal-bar.slim { height: 6px; }
+
+/* ---- macros: list lines (Var A) ----------------------------------- */
+
+.macro-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.macro-line-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: var(--ink-2);
+}
+.macro-line-label {
+  font-family: var(--display);
+  font-size: 17px;
+  color: var(--ink);
+}
+.font-clean .macro-line-label { font-family: inherit; font-weight: 600; font-size: 14px; }
+.macro-line-val b { font-weight: 700; color: var(--ink); }
+
+/* ---- macros: pills (Var B) ---------------------------------------- */
+
+.macro-tri {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.macro-pill {
+  border: 1.5px dashed var(--ink);
+  border-radius: 12px;
+  padding: 10px;
+  background: #fffefb;
+}
+.sketch-low .macro-pill { border-style: solid; border-color: var(--gray-2); }
+.macro-pill-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.macro-pill-short {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+.font-clean .macro-pill-short { font-family: inherit; }
+.macro-pill-label {
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.macro-pill-val {
+  font-size: 13px;
+  color: var(--ink-2);
+  margin-bottom: 6px;
+}
+.macro-pill-val b { font-weight: 700; color: var(--ink); }
+
+/* ---- hero ring (Var B) -------------------------------------------- */
+
+.rep-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.ring-svg.big { width: 170px; height: 170px; }
+.ring-eyebrow {
+  font-size: 10px;
+  color: var(--ink-3);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.ring-big.xl { font-size: 38px; }
+
+/* ---- kcal tile + mini-rings (Var C) ------------------------------- */
+
+.rep-kcal-tile {
+  padding: 14px 16px;
+}
+.rep-kcal-side {
+  display: flex;
+  flex-direction: column;
+  margin-left: auto;
+  text-align: right;
+  gap: 2px;
+}
+.rep-kcal-of {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.macro-ring-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.macro-ring {
+  border: 1.5px dashed var(--ink);
+  border-radius: 12px;
+  padding: 10px 6px;
+  background: #fffefb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.sketch-low .macro-ring { border-style: solid; border-color: var(--gray-2); }
+
+.macro-ring-svg {
+  position: relative;
+  width: 64px; height: 64px;
+}
+.macro-ring-center {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.macro-ring-pct {
+  font-family: var(--display);
+  font-size: 16px;
+  line-height: 1;
+}
+.font-clean .macro-ring-pct { font-weight: 700; font-size: 13px; }
+
+.macro-ring-label {
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.macro-ring-val {
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.macro-ring-val b { font-weight: 700; color: var(--ink); }
+
+/* ---- meal summary lists ------------------------------------------- */
+
+.meal-summary-list {
+  border: 1.5px dashed var(--ink);
+  border-radius: 12px;
+  background: #fffefb;
+  overflow: hidden;
+}
+.sketch-low .meal-summary-list { border-style: solid; border-color: var(--gray-2); }
+
+.meal-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px dashed var(--gray-2);
+  font-size: 15px;
+}
+.sketch-low .meal-summary-row { border-bottom-style: solid; }
+.meal-summary-row:last-child { border-bottom: none; }
+.meal-summary-row.dim { color: var(--ink-3); }
+.meal-summary-right {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.meal-summary-row.dim .meal-summary-right { color: var(--ink-3); font-style: italic; }
+.font-clean .meal-summary-row.dim .meal-summary-right { font-style: normal; }
+
+.chev.tiny {
+  width: 14px; height: 14px;
+  font-size: 11px;
+  border: none;
+}
+
+.meal-summary-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.meal-summary-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 14px;
+  border: 1.5px dashed var(--ink);
+  border-radius: 10px;
+  background: #fffefb;
+  font-size: 14px;
+}
+.sketch-low .meal-summary-card { border-style: solid; border-color: var(--gray-2); }
+.meal-summary-card.dim { opacity: 0.55; }
+.meal-summary-card-kcal { color: var(--ink-2); font-size: 13px; }
+
+/* ---- empty state banner ------------------------------------------ */
+
+.empty-banner {
+  margin-top: 4px;
+  padding: 14px;
+  border: 1.5px dashed var(--ink-3);
+  border-radius: 12px;
+  background: var(--paper);
+  text-align: center;
+}
+.sketch-low .empty-banner {
+  border-style: solid;
+  border-color: var(--gray-2);
+  background: #fffefb;
+}
+.empty-banner-title {
+  font-family: var(--display);
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+.font-clean .empty-banner-title { font-weight: 700; font-size: 15px; letter-spacing: -0.2px; }
+.empty-banner-sub {
+  font-size: 13px;
+  color: var(--ink-3);
+}

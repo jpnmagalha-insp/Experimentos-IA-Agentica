@@ -1,8 +1,3 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(curl *)",
-      "Bash(node scripts/linear-create-issues.mjs 1)"
-    ]
-  }
+  "enableAllProjectMcpServers": true
 }
