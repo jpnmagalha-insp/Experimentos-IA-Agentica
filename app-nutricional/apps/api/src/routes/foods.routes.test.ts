@@ -94,3 +94,77 @@ describe('GET /foods/search', () => {
     expect(mockService.search).toHaveBeenCalledWith('arroz', 5)
   })
 })
+
+describe('GET /foods/:id', () => {
+  let app: ReturnType<typeof Fastify>
+  const mockService = { search: vi.fn(), findById: vi.fn() }
+
+  beforeAll(async () => {
+    app = Fastify({ logger: false })
+    await app.register(foodsPlugin, { foodService: mockService as unknown as FoodService })
+    await app.ready()
+  })
+
+  afterAll(async () => {
+    await app.close()
+  })
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('retorna 200 com o food object diretamente (sem envelope) quando food existe', async () => {
+    mockService.findById.mockResolvedValue(mockFood)
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/foods/${mockFood.id}`,
+    })
+
+    expect(res.statusCode).toBe(200)
+    const body = JSON.parse(res.body)
+    expect(body.id).toBe(mockFood.id)
+    expect(body.caloriesPer100g).toBe(mockFood.caloriesPer100g)
+    expect(body.proteinPer100g).toBe(mockFood.proteinPer100g)
+    expect(body.fatPer100g).toBe(mockFood.fatPer100g)
+    expect(body.carbPer100g).toBe(mockFood.carbPer100g)
+    expect(body.measures).toBeInstanceOf(Array)
+    expect(body).not.toHaveProperty('tacoId')
+  })
+
+  it('retorna 404 com { error: "Food not found" } quando service retorna null', async () => {
+    mockService.findById.mockResolvedValue(null)
+
+    const res = await app.inject({
+      method: 'GET',
+      url: '/foods/550e8400-e29b-41d4-a716-446655440099',
+    })
+
+    expect(res.statusCode).toBe(404)
+    const body = JSON.parse(res.body)
+    expect(body).toEqual({ error: 'Food not found' })
+  })
+
+  it('retorna 400 com { error: "Validation error" } quando id não é UUID válido', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/foods/abc',
+    })
+
+    expect(res.statusCode).toBe(400)
+    const body = JSON.parse(res.body)
+    expect(body.error).toBe('Validation error')
+  })
+
+  it('chama service.findById com o id correto', async () => {
+    mockService.findById.mockResolvedValue(mockFood)
+
+    await app.inject({
+      method: 'GET',
+      url: `/foods/${mockFood.id}`,
+    })
+
+    expect(mockService.findById).toHaveBeenCalledOnce()
+    expect(mockService.findById).toHaveBeenCalledWith(mockFood.id)
+  })
+})

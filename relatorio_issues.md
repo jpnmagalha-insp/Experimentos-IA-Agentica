@@ -141,7 +141,7 @@ curl http://localhost:3000/health
 - **Epic:** NUT-126 — EPIC: Log Alimentar
 - **Issues:**
   - NUT-127 — [backend] Implementar GET /foods/search com unaccent e debounce `[Done]`
-  - NUT-128 — [backend] Implementar GET /foods/:id
+  - NUT-128 — [backend] Implementar GET /foods/:id `[Done]`
   - NUT-129 — [backend] Implementar GET /logs?date= com totais por refeição
   - NUT-130 — [backend] Implementar POST /logs com cálculo de macros (DR-06, DR-07)
   - NUT-131 — [backend] Implementar PUT /logs/:id com recálculo de macros
@@ -172,6 +172,20 @@ curl http://localhost:3000/health
 | `apps/api/src/server.ts`                            | Wiring: instancia `FoodRepository` e `FoodService`, registra `foodsPlugin` com DI                                                                                                |
 
 > **Passos Manuais:** criar `.env` em `apps/api/` com `DATABASE_URL=postgresql://nutri_ia:nutri_ia_dev@localhost:5432/nutri_ia_dev` antes de rodar localmente (não commitado por segurança).
+
+#### NUT-128 — [backend] Implementar GET /foods/:id `[Done - 2026-05-22]`
+
+**Arquivos criados:**
+
+| Arquivo                                             | Descrição                                                                                                                                                                  |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/shared/src/index.ts`                      | Adicionados `foodIdParamSchema` (`z.object({ id: z.string().uuid() })`) e tipo `FoodIdParamDto`                                                                            |
+| `apps/api/src/repositories/food.repository.ts`      | Novo método `findById(id)` usando `prisma.food.findUnique({ where: { id }, include: { measures: true } })`; retorna `FoodWithMeasures \| null`                             |
+| `apps/api/src/services/food.service.ts`             | Novo método `findById(id)` thin pass-through delegando ao repository                                                                                                       |
+| `apps/api/src/routes/foods.routes.ts`               | Handler `GET /foods/:id`: valida UUID via `foodIdParamSchema` → 400; chama service → 404 se null; `foodSchema.parse(food)` antes de `reply.send()` (strip de campos internos como `tacoId`) |
+| `apps/api/src/repositories/food.repository.test.ts` | +3 testes de integração para `findById`: encontra food com measures, retorna null para UUID inexistente, verifica campos id/description/gramsEquivalent das measures         |
+| `apps/api/src/services/food.service.test.ts`        | +3 testes unitários para `findById`: delegação com id correto, propagação de null, propagação de erro                                                                       |
+| `apps/api/src/routes/foods.routes.test.ts`          | +4 testes via `app.inject`: 200 food sem envelope (com guard `not.toHaveProperty('tacoId')`), 404 quando null, 400 UUID inválido, delegação com id correto                 |
 
 ---
 

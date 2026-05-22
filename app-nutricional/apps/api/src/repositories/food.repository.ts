@@ -4,6 +4,13 @@ import type { Food, FoodMeasure } from '@prisma/client'
 export type FoodWithMeasures = Food & { measures: FoodMeasure[] }
 
 export class FoodRepository {
+  async findById(id: string): Promise<FoodWithMeasures | null> {
+    return prisma.food.findUnique({
+      where: { id },
+      include: { measures: true },
+    })
+  }
+
   async search(query: string, limit: number): Promise<FoodWithMeasures[]> {
     const pattern = `%${query}%`
 

@@ -53,6 +53,10 @@ export const foodSearchResponseSchema = z.object({
   foods: z.array(foodSchema),
 })
 
+export const foodIdParamSchema = z.object({
+  id: z.string().uuid(),
+})
+
 // --- Food Log ---
 
 export const mealTypeSchema = z.enum(['breakfast', 'lunch', 'dinner', 'snack'])
@@ -86,3 +90,4 @@ export type CreateLogDto = z.infer<typeof createLogSchema>
 export type MacroResult = z.infer<typeof macroResultSchema>
 export type FoodSearchQueryDto = z.infer<typeof foodSearchQuerySchema>
 export type FoodSearchResponseDto = z.infer<typeof foodSearchResponseSchema>
+export type FoodIdParamDto = z.infer<typeof foodIdParamSchema>

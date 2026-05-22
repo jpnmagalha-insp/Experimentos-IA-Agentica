@@ -92,3 +92,64 @@ describe('FoodRepository.search', () => {
     expect(exactIndex).toBeLessThan(partialIndex)
   })
 })
+
+describe('FoodRepository.findById', () => {
+  let foodId: string
+  let measureId: string
+
+  const repo = new FoodRepository()
+
+  beforeAll(async () => {
+    const food = await prisma.food.create({
+      data: {
+        name: 'Frango grelhado',
+        caloriesPer100g: 165,
+        proteinPer100g: 31.0,
+        fatPer100g: 3.6,
+        carbPer100g: 0.0,
+        category: 'Carnes e derivados',
+        measures: {
+          create: [{ description: 'filé médio', gramsEquivalent: 120 }],
+        },
+      },
+      include: { measures: true },
+    })
+    foodId = food.id
+    measureId = food.measures[0].id
+  })
+
+  afterAll(async () => {
+    await prisma.foodMeasure.deleteMany({ where: { foodId } })
+    await prisma.food.deleteMany({ where: { id: foodId } })
+  })
+
+  it('retorna FoodWithMeasures com todos os campos nutricionais quando food existe', async () => {
+    const result = await repo.findById(foodId)
+
+    expect(result).not.toBeNull()
+    expect(result!.id).toBe(foodId)
+    expect(result!.name).toBe('Frango grelhado')
+    expect(result!.caloriesPer100g).toBe(165)
+    expect(result!.proteinPer100g).toBe(31.0)
+    expect(result!.fatPer100g).toBe(3.6)
+    expect(result!.carbPer100g).toBe(0.0)
+  })
+
+  it('retorna null quando food não existe (UUID inexistente)', async () => {
+    const result = await repo.findById('00000000-0000-0000-0000-000000000000')
+
+    expect(result).toBeNull()
+  })
+
+  it('retorna measures[] com os campos id, description e gramsEquivalent', async () => {
+    const result = await repo.findById(foodId)
+
+    expect(result!.measures).toBeInstanceOf(Array)
+    expect(result!.measures.length).toBeGreaterThan(0)
+    expect(result!.measures[0]).toMatchObject({
+      id: measureId,
+      description: 'filé médio',
+      gramsEquivalent: 120,
+    })
+  })
+})

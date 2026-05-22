@@ -54,3 +54,37 @@ describe('FoodService.search', () => {
     await expect(service.search('arroz', 10)).rejects.toThrow('DB connection failed')
   })
 })
+
+describe('FoodService.findById', () => {
+  let service: FoodService
+  let mockRepo: { search: ReturnType<typeof vi.fn>; findById: ReturnType<typeof vi.fn> }
+
+  beforeEach(() => {
+    mockRepo = { search: vi.fn(), findById: vi.fn() }
+    service = new FoodService(mockRepo as unknown as FoodRepository)
+  })
+
+  it('delega ao repositório com o id correto e retorna o food', async () => {
+    mockRepo.findById.mockResolvedValue(mockFood)
+
+    const result = await service.findById(mockFood.id)
+
+    expect(mockRepo.findById).toHaveBeenCalledOnce()
+    expect(mockRepo.findById).toHaveBeenCalledWith(mockFood.id)
+    expect(result).toEqual(mockFood)
+  })
+
+  it('propaga null quando repositório retorna null', async () => {
+    mockRepo.findById.mockResolvedValue(null)
+
+    const result = await service.findById('00000000-0000-0000-0000-000000000000')
+
+    expect(result).toBeNull()
+  })
+
+  it('propaga erros do repositório sem engolir', async () => {
+    mockRepo.findById.mockRejectedValue(new Error('DB connection failed'))
+
+    await expect(service.findById(mockFood.id)).rejects.toThrow('DB connection failed')
+  })
+})
