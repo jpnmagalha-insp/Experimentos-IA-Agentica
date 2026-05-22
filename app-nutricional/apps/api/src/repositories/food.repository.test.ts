@@ -3,7 +3,7 @@ import { FoodRepository } from './food.repository'
 import { prisma } from '../lib/prisma'
 
 describe('FoodRepository.search', () => {
-  let paoBagueteId: string
+  let paoFrancesId: string
   let arrozBrancoId: string
   let arrozId: string
 
@@ -20,7 +20,7 @@ describe('FoodRepository.search', () => {
         },
       },
     })
-    paoBagueteId = pao.id
+    paoFrancesId = pao.id
 
     const arrozBranco = await prisma.food.create({
       data: {
@@ -46,23 +46,22 @@ describe('FoodRepository.search', () => {
   })
 
   afterAll(async () => {
-    await prisma.foodMeasure.deleteMany({ where: { foodId: paoBagueteId } })
+    await prisma.foodMeasure.deleteMany({ where: { foodId: paoFrancesId } })
     await prisma.food.deleteMany({
-      where: { id: { in: [paoBagueteId, arrozBrancoId, arrozId] } },
+      where: { id: { in: [paoFrancesId, arrozBrancoId, arrozId] } },
     })
-    await prisma.$disconnect()
   })
 
   const repo = new FoodRepository()
 
   it('encontra alimento por trecho do nome (case-insensitive)', async () => {
     const results = await repo.search('Pão', 10)
-    expect(results.some(f => f.id === paoBagueteId)).toBe(true)
+    expect(results.some(f => f.id === paoFrancesId)).toBe(true)
   })
 
   it('encontra alimento sem acento (unaccent DR-11)', async () => {
     const results = await repo.search('pao frances', 10)
-    expect(results.some(f => f.id === paoBagueteId)).toBe(true)
+    expect(results.some(f => f.id === paoFrancesId)).toBe(true)
   })
 
   it('retorna lista vazia quando nada encontrado', async () => {
@@ -72,7 +71,7 @@ describe('FoodRepository.search', () => {
 
   it('inclui measures[] em cada resultado', async () => {
     const results = await repo.search('Pão', 10)
-    const food = results.find(f => f.id === paoBagueteId)
+    const food = results.find(f => f.id === paoFrancesId)
     expect(food?.measures).toBeInstanceOf(Array)
     expect(food?.measures.length).toBeGreaterThan(0)
     expect(food?.measures[0]).toMatchObject({

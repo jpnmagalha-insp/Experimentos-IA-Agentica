@@ -11,7 +11,7 @@ export class FoodRepository {
       SELECT id FROM foods
       WHERE unaccent(lower(name)) ILIKE unaccent(lower(${pattern}))
       ORDER BY
-        CASE WHEN lower(name) = lower(${query}) THEN 0 ELSE 1 END,
+        CASE WHEN unaccent(lower(name)) = unaccent(lower(${query})) THEN 0 ELSE 1 END,
         name
       LIMIT ${limit}
     `
@@ -26,6 +26,8 @@ export class FoodRepository {
     })
 
     // Restaura a ordem retornada pelo SQL (match exato primeiro, depois alfabético)
-    return ids.map(id => foods.find(f => f.id === id)!)
+    return ids
+      .map(id => foods.find(f => f.id === id))
+      .filter((f): f is FoodWithMeasures => f !== undefined)
   }
 }
