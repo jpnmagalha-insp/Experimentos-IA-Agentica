@@ -68,23 +68,23 @@ packages/shared  →  Schemas Zod compartilhados (contratos de tipo entre front 
 
 **Monorepo (npm workspaces):**
 
-| Workspace | Propósito |
-|-----------|-----------|
-| `apps/api` | Fastify REST API |
-| `apps/mobile` | React Native + Expo |
+| Workspace         | Propósito                      |
+| ----------------- | ------------------------------ |
+| `apps/api`        | Fastify REST API               |
+| `apps/mobile`     | React Native + Expo            |
 | `packages/shared` | Schemas Zod e tipos exportados |
 
 ---
 
 ## Decisões arquiteturais importantes
 
-| ID | Decisão |
-|----|---------|
-| DA-01 | Expo (managed workflow) — gerencia builds nativos e permissões |
-| DA-02 | TACO v7 como seed estático — dados nutricionais brasileiros, sem API externa |
-| DA-03 | Macros calculados apenas no backend — consistência garantida |
+| ID    | Decisão                                                                                       |
+| ----- | --------------------------------------------------------------------------------------------- |
+| DA-01 | Expo (managed workflow) — gerencia builds nativos e permissões                                |
+| DA-02 | TACO v7 como seed estático — dados nutricionais brasileiros, sem API externa                  |
+| DA-03 | Macros calculados apenas no backend — consistência garantida                                  |
 | DA-04 | Macros desnormalizados no `FoodLog` — histórico preservado mesmo se dados do alimento mudarem |
-| DA-05 | Camadas: Routes → Services → Repositories — Services sem acesso direto ao banco |
+| DA-05 | Camadas: Routes → Services → Repositories — Services sem acesso direto ao banco               |
 
 ---
 
@@ -97,15 +97,15 @@ packages/shared  →  Schemas Zod compartilhados (contratos de tipo entre front 
 
 ### Nomenclatura
 
-| Contexto | Convenção | Exemplo |
-|----------|-----------|---------|
-| Variáveis e funções | `camelCase` | `getUserData` |
-| Componentes React/RN | `PascalCase` | `DailyLogScreen` |
-| Arquivos de componentes | `PascalCase.tsx` | `FoodDetailScreen.tsx` |
-| Hooks customizados | `use` + `PascalCase` | `useDailyLog` |
-| Constantes globais | `UPPER_SNAKE_CASE` | `MAX_RETRY_COUNT` |
-| Tipos e interfaces | `PascalCase` | `AuthStore` |
-| Branches Git | `tipo/descricao-curta` | `feat/food-search-debounce` |
+| Contexto                | Convenção              | Exemplo                     |
+| ----------------------- | ---------------------- | --------------------------- |
+| Variáveis e funções     | `camelCase`            | `getUserData`               |
+| Componentes React/RN    | `PascalCase`           | `DailyLogScreen`            |
+| Arquivos de componentes | `PascalCase.tsx`       | `FoodDetailScreen.tsx`      |
+| Hooks customizados      | `use` + `PascalCase`   | `useDailyLog`               |
+| Constantes globais      | `UPPER_SNAKE_CASE`     | `MAX_RETRY_COUNT`           |
+| Tipos e interfaces      | `PascalCase`           | `AuthStore`                 |
+| Branches Git            | `tipo/descricao-curta` | `feat/food-search-debounce` |
 
 ---
 
@@ -127,11 +127,11 @@ APP_URL
 
 ## Deploy
 
-| Ambiente | Trigger | Banco |
-|----------|---------|-------|
-| `development` | manual (Docker Compose) | localhost:5432 |
-| `staging` | push em `develop` | Railway Postgres |
-| `production` | push em `main` | Railway Postgres |
+| Ambiente      | Trigger                 | Banco            |
+| ------------- | ----------------------- | ---------------- |
+| `development` | manual (Docker Compose) | localhost:5432   |
+| `staging`     | push em `develop`       | Railway Postgres |
+| `production`  | push em `main`          | Railway Postgres |
 
 Railway roda `prisma migrate deploy` automaticamente antes de subir o servidor.
 
@@ -187,7 +187,15 @@ npm test             # Testes unitários
 
 > ⚠️ Não commite sem confirmação explícita do usuário.
 
-14. Faça o commit seguindo o padrão:
+14. Atualize o arquivo `relatorio_issues.md` com o que foi feito na issue, seguindo exatamente o padrão já estabelecido no documento:
+
+- Marque a issue como `` `[Done]` `` na lista de issues do milestone
+- Crie uma subseção `#### NUT-XXX — <título> \`[Done - YYYY-MM-DD]\`` com a data real de conclusão
+- Liste todos os arquivos criados ou modificados sob o título `**Arquivos criados:**`, em uma tabela com duas colunas alinhadas: `Arquivo` e `Descrição`
+- Se houver passos que o usuário precisa executar manualmente, adicione um blockquote `> **Passos Manuais:** ...` logo após a tabela
+- Adicione `---` ao final da seção do milestone se for o último item do bloco
+
+15. Faça o commit seguindo o padrão:
 
 ```
 <tipo>(<escopo>): <descrição no imperativo>
@@ -202,7 +210,7 @@ Tipos: `feat`, `fix`, `refactor`, `chore`, `test`, `docs`, `perf`, `style`.
 
 O número da issue é o ID do Linear no formato `NUT-XXX`. Exemplos de escopo: `api`, `mobile`, `shared`, `infra`, `auth`, `log`, `report`, `profile`.
 
-15. **Mova a issue para "Done"** no Linear via MCP.
+16. **Mova a issue para "Done"** no Linear via MCP.
 
 ---
 
