@@ -1,4 +1,7 @@
 import Fastify from 'fastify'
+import { foodsPlugin } from './routes/foods.routes'
+import { FoodRepository } from './repositories/food.repository'
+import { FoodService } from './services/food.service'
 
 const fastify = Fastify({
   logger: {
@@ -9,6 +12,10 @@ const fastify = Fastify({
 fastify.get('/health', async (_request, _reply) => {
   return { status: 'ok', timestamp: new Date().toISOString() }
 })
+
+const foodRepository = new FoodRepository()
+const foodService = new FoodService(foodRepository)
+fastify.register(foodsPlugin, { foodService })
 
 const start = async () => {
   try {
