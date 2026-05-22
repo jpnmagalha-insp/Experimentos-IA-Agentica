@@ -44,6 +44,15 @@ export const foodSchema = z.object({
   measures: z.array(foodMeasureSchema),
 })
 
+export const foodSearchQuerySchema = z.object({
+  q: z.string().min(2, 'q deve ter pelo menos 2 caracteres'),
+  limit: z.coerce.number().int().min(1).max(30).default(10),
+})
+
+export const foodSearchResponseSchema = z.object({
+  foods: z.array(foodSchema),
+})
+
 // --- Food Log ---
 
 export const mealTypeSchema = z.enum(['breakfast', 'lunch', 'dinner', 'snack'])
@@ -75,3 +84,5 @@ export type FoodDto = z.infer<typeof foodSchema>
 export type FoodMeasureDto = z.infer<typeof foodMeasureSchema>
 export type CreateLogDto = z.infer<typeof createLogSchema>
 export type MacroResult = z.infer<typeof macroResultSchema>
+export type FoodSearchQueryDto = z.infer<typeof foodSearchQuerySchema>
+export type FoodSearchResponseDto = z.infer<typeof foodSearchResponseSchema>
