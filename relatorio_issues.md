@@ -231,7 +231,7 @@ curl -X POST http://localhost:3000/v1/auth/register \
 | NUT-132 | [backend] DELETE /logs/:id                                             | `Done`  |
 | NUT-133 | [frontend] DailyLogScreen com navegação de datas                       | `Done`  |
 | NUT-134 | [frontend] FoodSearchScreen com debounce 300ms                         | `Done`  |
-| NUT-135 | [frontend] FoodDetailScreen com gramas e medidas caseiras              | Backlog |
+| NUT-135 | [frontend] FoodDetailScreen com gramas e medidas caseiras              | `Done`  |
 | NUT-136 | [integration] Fluxo completo: busca → seleção → quantidade → log       | Backlog |
 | NUT-137 | [test-e2e] Log Alimentar — adicionar, editar, excluir e medida caseira | Backlog |
 
@@ -305,6 +305,19 @@ curl -X POST http://localhost:3000/v1/auth/register \
 | `apps/mobile/src/navigation/index.tsx`                           | `FoodDetail` adicionado ao `AppStackParamList` e ao `AppStack.Navigator` como modal com title "Adicionar alimento"                     |
 
 > **Decisão técnica:** hint state baseado em `query.length < 2` (não `debouncedQuery`) para feedback visual imediato antes do debounce disparar.
+
+---
+
+#### NUT-135 — FoodDetailScreen com gramas e medidas caseiras `[Done - 2026-05-25]`
+
+**Arquivos criados/alterados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/mobile/src/hooks/useCreateLog.ts` | Novo hook TanStack Query Mutation: `POST /logs`; invalida `['logs', date]` e `['report', date]` no `onSuccess` |
+| `apps/mobile/src/screens/home/FoodDetailScreen.tsx` | Reimplementação completa: tabela nutricional por 100g, toggle gramas/medidas caseiras, TextInput com preview em tempo real, picker de medidas, botão "Adicionar ao log" com loading state |
+
+> **Decisão técnica:** `calcPreview` duplica intencionalmente a lógica do `food-macros.calculator.ts` no cliente (mesmo arredondamento `Math.round(v * 10) / 10`) para preview instantâneo sem chamada à API; extração para `packages/shared` foi descartada pois o cálculo é trivial e a dependência seria apenas client-side.
 
 ---
 
