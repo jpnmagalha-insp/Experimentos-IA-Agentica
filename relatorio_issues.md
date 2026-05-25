@@ -228,9 +228,9 @@ curl -X POST http://localhost:3000/v1/auth/register \
 | NUT-129 | [backend] GET /logs?date= com totais por refeição                      | `Done`  |
 | NUT-130 | [backend] POST /logs com cálculo de macros (DR-06, DR-07)              | `Done`  |
 | NUT-131 | [backend] PUT /logs/:id com recálculo de macros                        | `Done`  |
-| NUT-132 | [backend] DELETE /logs/:id                                             | Backlog |
-| NUT-133 | [frontend] DailyLogScreen com navegação de datas                       | Backlog |
-| NUT-134 | [frontend] FoodSearchScreen com debounce 300ms                         | Backlog |
+| NUT-132 | [backend] DELETE /logs/:id                                             | `Done`  |
+| NUT-133 | [frontend] DailyLogScreen com navegação de datas                       | `Done`  |
+| NUT-134 | [frontend] FoodSearchScreen com debounce 300ms                         | `Done`  |
 | NUT-135 | [frontend] FoodDetailScreen com gramas e medidas caseiras              | Backlog |
 | NUT-136 | [integration] Fluxo completo: busca → seleção → quantidade → log       | Backlog |
 | NUT-137 | [test-e2e] Log Alimentar — adicionar, editar, excluir e medida caseira | Backlog |
@@ -290,6 +290,21 @@ curl -X POST http://localhost:3000/v1/auth/register \
 | `apps/api/src/server.ts`                               | Wiring: instancia `FoodLogRepository` + `FoodLogService`, registra `logsPlugin` com prefixo `/v1`                                                                                                                |
 
 > **Nota técnica:** a issue referencia `domain-rules.md DR-08` (arquivo inexistente) e `requirements.md R4.7` (numeração incorreta). Implementação seguiu `api.md:231-264` e `data-model.md:208-212`.
+
+---
+
+#### NUT-134 — FoodSearchScreen com debounce 300ms `[Done - 2026-05-25]`
+
+**Arquivos criados/alterados:**
+
+| Arquivo                                                          | Descrição                                                                                                                              |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/mobile/src/hooks/useFoodSearch.ts`                         | Hook TanStack Query: `GET /foods/search?q=`; `enabled: q.length >= 2`; cache key `['foods','search',q]`                               |
+| `apps/mobile/src/screens/home/FoodSearchScreen.tsx`              | Substituição do skeleton: TextInput + debounce 300ms via `useRef`/`setTimeout` com cleanup; skeleton list, empty state e results list  |
+| `apps/mobile/src/screens/home/FoodDetailScreen.tsx`              | Skeleton novo (recebe `{ food, mealType, date }`); implementação real virá na NUT-135                                                  |
+| `apps/mobile/src/navigation/index.tsx`                           | `FoodDetail` adicionado ao `AppStackParamList` e ao `AppStack.Navigator` como modal com title "Adicionar alimento"                     |
+
+> **Decisão técnica:** hint state baseado em `query.length < 2` (não `debouncedQuery`) para feedback visual imediato antes do debounce disparar.
 
 ---
 
