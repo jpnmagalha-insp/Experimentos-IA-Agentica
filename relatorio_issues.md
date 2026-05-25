@@ -233,7 +233,7 @@ curl -X POST http://localhost:3000/v1/auth/register \
 | NUT-134 | [frontend] FoodSearchScreen com debounce 300ms                         | `Done`  |
 | NUT-135 | [frontend] FoodDetailScreen com gramas e medidas caseiras              | `Done`  |
 | NUT-136 | [integration] Fluxo completo: busca → seleção → quantidade → log       | `Done`  |
-| NUT-137 | [test-e2e] Log Alimentar — adicionar, editar, excluir e medida caseira | Backlog |
+| NUT-137 | [test-e2e] Log Alimentar — adicionar, editar, excluir e medida caseira | `Done`  |
 
 ---
 
@@ -318,6 +318,29 @@ curl -X POST http://localhost:3000/v1/auth/register \
 | `apps/mobile/src/screens/home/FoodDetailScreen.tsx` | Reimplementação completa: tabela nutricional por 100g, toggle gramas/medidas caseiras, TextInput com preview em tempo real, picker de medidas, botão "Adicionar ao log" com loading state |
 
 > **Decisão técnica:** `calcPreview` duplica intencionalmente a lógica do `food-macros.calculator.ts` no cliente (mesmo arredondamento `Math.round(v * 10) / 10`) para preview instantâneo sem chamada à API; extração para `packages/shared` foi descartada pois o cálculo é trivial e a dependência seria apenas client-side.
+
+---
+
+#### NUT-137 — [test-e2e] Log Alimentar `[Done - 2026-05-25]`
+
+**Arquivos criados/alterados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/mobile/.detoxrc.js` | Configuração Detox: apps Android Debug (APK + Gradle) e iOS Debug (Xcode prebuild); devices simulator (iPhone 15) e emulator (Pixel 4); configurações `ios.sim.debug` e `android.emu.debug` |
+| `apps/mobile/e2e/jest.config.js` | Runner Detox/Jest: `maxWorkers: 1`, `testTimeout: 120s`, transform ts-jest, globalSetup/globalTeardown/testEnvironment do Detox |
+| `apps/mobile/e2e/setup.ts` | Helpers: `ensureTestUser()` (register + upsert profile idempotente), `loginTestUser()`, `findFood()`, `seedLog()`, `clearLogs()` — todos via `axios` contra `http://localhost:3000/v1` |
+| `apps/mobile/e2e/foodLog.test.ts` | 5 cenários BDD implementados com Detox: adicionar por gramagem (preview + item no Almoço + total), medida caseira (toggle + seleção + preview), busca sem resultados, editar quantidade, excluir com swipe |
+| `apps/mobile/package.json` | devDeps: `detox ^20.26.0`, `jest ^29.7.0`, `ts-jest ^29.2.0`, `@types/jest ^29.5.0`; scripts `test:e2e`, `test:e2e:android`, `build:e2e`, `build:e2e:android` |
+| `apps/mobile/tsconfig.json` | `"exclude": ["e2e"]` — impede que tipos Detox/Node contaminem o typecheck Expo |
+| `apps/mobile/src/screens/auth/LoginScreen.tsx` | `testID` em email input (`login-email-input`), password input (`login-password-input`) e botão Entrar (`login-btn`) |
+| `apps/mobile/src/screens/home/DailyLogScreen.tsx` | `testID` em: seções de refeição (`meal-section-{mealType}`), botões "+ Add" (`add-food-btn-{mealType}`), `Animated.View` de log (`log-item-{id}`), botão delete revelado no swipe (`delete-btn-{id}`), inner touch de edição (`log-item-edit-{id}`), input do modal (`edit-qty-input`), botão salvar (`edit-save-btn`), calorias consumidas (`kcal-consumed`) |
+| `apps/mobile/src/screens/home/FoodSearchScreen.tsx` | `testID` em: input de busca (`food-search-input`), itens de resultado (`food-result-{id}`), container de empty state (`food-empty-state`) |
+| `apps/mobile/src/screens/home/FoodDetailScreen.tsx` | `testID` em: toggles (`toggle-grams`, `toggle-measure`), input de quantidade (`qty-input`), cada medida caseira (`measure-item-{id}`), preview kcal (`preview-kcal`), preview macros (`preview-macros`), botão submit (`submit-btn`); `ToggleButton` aceita prop `testID?: string` |
+
+> **Decisão técnica:** `testID` no `Animated.View` (não no wrapper) — o `PanResponder` está atachado ali, garantindo que o gesto de swipe do Detox atinja o responder correto. `delete-btn-${id}` tem testID próprio para evitar ambiguidade com o "Excluir" do `Alert.alert` nativo.
+>
+> **Pré-requisitos para rodar:** `expo prebuild` para gerar diretórios nativos; verificar paths em `.detoxrc.js`; API + DB ativos. Testes com `npm run test:e2e` dentro de `apps/mobile/`.
 
 ---
 

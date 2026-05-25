@@ -99,6 +99,7 @@ function LogItem({ item, onDelete, onEdit }: LogItemProps) {
     <View style={styles.logItemWrapper}>
       <TouchableOpacity
         style={styles.deleteBtn}
+        testID={`delete-btn-${item.id}`}
         onPress={() => {
           closeSwipe()
           onDelete()
@@ -108,9 +109,10 @@ function LogItem({ item, onDelete, onEdit }: LogItemProps) {
       </TouchableOpacity>
       <Animated.View
         style={[styles.logItem, { transform: [{ translateX }] }]}
+        testID={`log-item-${item.id}`}
         {...panResponder.panHandlers}
       >
-        <TouchableOpacity style={styles.logItemInner} onPress={onEdit} activeOpacity={0.7}>
+        <TouchableOpacity style={styles.logItemInner} onPress={onEdit} activeOpacity={0.7} testID={`log-item-edit-${item.id}`}>
           <View style={styles.logItemLeft}>
             <Text style={styles.logItemName} numberOfLines={1}>
               {item.food.name}
@@ -175,11 +177,13 @@ function EditModal({ item, onClose, onSave, isLoading }: EditModalProps) {
             keyboardType="numeric"
             autoFocus
             selectTextOnFocus
+            testID="edit-qty-input"
           />
           <TouchableOpacity
             style={[styles.modalSaveBtn, isLoading && styles.modalSaveBtnDisabled]}
             onPress={handleSave}
             disabled={isLoading}
+            testID="edit-save-btn"
           >
             {isLoading ? (
               <ActivityIndicator color="#fff" />
@@ -197,17 +201,18 @@ function EditModal({ item, onClose, onSave, isLoading }: EditModalProps) {
 
 interface MealSectionProps {
   title: string
+  mealType: MealType
   items: FoodLogItemDto[]
   onAdd: () => void
   onDelete: (id: string) => void
   onEdit: (item: FoodLogItemDto) => void
 }
 
-function MealSection({ title, items, onAdd, onDelete, onEdit }: MealSectionProps) {
+function MealSection({ title, mealType, items, onAdd, onDelete, onEdit }: MealSectionProps) {
   const totalKcal = items.reduce((sum, i) => sum + i.calories, 0)
 
   return (
-    <View style={styles.mealSection}>
+    <View style={styles.mealSection} testID={`meal-section-${mealType}`}>
       <View style={styles.mealHeader}>
         <View>
           <Text style={styles.mealTitle}>{title}</Text>
@@ -215,7 +220,7 @@ function MealSection({ title, items, onAdd, onDelete, onEdit }: MealSectionProps
             <Text style={styles.mealTotal}>{Math.round(totalKcal)} kcal</Text>
           )}
         </View>
-        <TouchableOpacity onPress={onAdd} style={styles.addBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+        <TouchableOpacity onPress={onAdd} style={styles.addBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} testID={`add-food-btn-${mealType}`}>
           <Text style={styles.addBtnText}>+ Add</Text>
         </TouchableOpacity>
       </View>
@@ -312,7 +317,7 @@ export function DailyLogScreen({ navigation }: { navigation: DailyLogNavProp }) 
         activeOpacity={0.85}
       >
         <View style={styles.kcalRow}>
-          <Text style={styles.kcalConsumed}>{Math.round(totalCalories)}</Text>
+          <Text style={styles.kcalConsumed} testID="kcal-consumed">{Math.round(totalCalories)}</Text>
           <Text style={styles.kcalSep}> / </Text>
           <Text style={styles.kcalGoal}>{goalCalories} kcal</Text>
         </View>
@@ -330,6 +335,7 @@ export function DailyLogScreen({ navigation }: { navigation: DailyLogNavProp }) 
             <MealSection
               key={mealType}
               title={MEAL_LABELS[mealType]}
+              mealType={mealType}
               items={data?.meals[mealType] ?? []}
               onAdd={() => handleAdd(mealType)}
               onDelete={handleDelete}

@@ -84,6 +84,7 @@ export function LoginScreen({ navigation }: Props) {
           autoCapitalize="none"
           keyboardType="email-address"
           accessibilityLabel="Campo de e-mail"
+          testID="login-email-input"
         />
         {errors.email ? <Text style={styles.error}>{errors.email}</Text> : null}
 
@@ -94,6 +95,7 @@ export function LoginScreen({ navigation }: Props) {
           onChangeText={setPassword}
           secureTextEntry
           accessibilityLabel="Campo de senha"
+          testID="login-password-input"
         />
         {errors.password ? <Text style={styles.error}>{errors.password}</Text> : null}
 
@@ -109,6 +111,7 @@ export function LoginScreen({ navigation }: Props) {
           onPress={handleLogin}
           disabled={loading}
           accessibilityLabel="Botão entrar"
+          testID="login-btn"
         >
           {loading ? (
             <ActivityIndicator color="#fff" />

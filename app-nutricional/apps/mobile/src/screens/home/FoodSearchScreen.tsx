@@ -72,6 +72,7 @@ export function FoodSearchScreen({ navigation, route }: Props) {
           autoFocus
           returnKeyType="search"
           clearButtonMode="while-editing"
+          testID="food-search-input"
         />
       </View>
 
@@ -90,7 +91,7 @@ export function FoodSearchScreen({ navigation, route }: Props) {
       )}
 
       {showEmpty && (
-        <View style={styles.centeredState}>
+        <View style={styles.centeredState} testID="food-empty-state">
           <Text style={styles.emptyText}>Nenhum alimento encontrado</Text>
         </View>
       )}
@@ -105,6 +106,7 @@ export function FoodSearchScreen({ navigation, route }: Props) {
               style={styles.resultItem}
               onPress={() => handleSelect(item)}
               activeOpacity={0.7}
+              testID={`food-result-${item.id}`}
             >
               <View style={styles.resultLeft}>
                 <Text style={styles.resultName} numberOfLines={1}>

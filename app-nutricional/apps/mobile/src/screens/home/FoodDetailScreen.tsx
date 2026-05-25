@@ -112,11 +112,13 @@ export function FoodDetailScreen({ navigation, route }: Props) {
         <View style={styles.toggleRow}>
           <ToggleButton
             label="Gramas"
+            testID="toggle-grams"
             active={mode === 'g'}
             onPress={() => handleToggle('g')}
           />
           <ToggleButton
             label="Medidas caseiras"
+            testID="toggle-measure"
             active={mode === 'measure'}
             onPress={() => handleToggle('measure')}
             disabled={!hasMeasures}
@@ -134,6 +136,7 @@ export function FoodDetailScreen({ navigation, route }: Props) {
             keyboardType="numeric"
             placeholder={mode === 'g' ? 'Ex: 150' : 'Ex: 2'}
             placeholderTextColor="#bbb"
+            testID="qty-input"
           />
         </View>
 
@@ -143,6 +146,7 @@ export function FoodDetailScreen({ navigation, route }: Props) {
             {food.measures.map((m, index) => (
               <TouchableOpacity
                 key={m.id}
+                testID={`measure-item-${m.id}`}
                 style={[
                   styles.measureItem,
                   index === food.measures.length - 1 && styles.measureItemLast,
@@ -161,8 +165,8 @@ export function FoodDetailScreen({ navigation, route }: Props) {
 
         {preview ? (
           <View style={styles.previewCard}>
-            <Text style={styles.previewKcal}>{preview.calories} kcal</Text>
-            <Text style={styles.previewMacros}>
+            <Text style={styles.previewKcal} testID="preview-kcal">{preview.calories} kcal</Text>
+            <Text style={styles.previewMacros} testID="preview-macros">
               P: {preview.protein}g · G: {preview.fat}g · C: {preview.carb}g
             </Text>
           </View>
@@ -183,6 +187,7 @@ export function FoodDetailScreen({ navigation, route }: Props) {
           onPress={handleSubmit}
           disabled={!canSubmit}
           activeOpacity={0.8}
+          testID="submit-btn"
         >
           {isPending ? (
             <ActivityIndicator color="#fff" />
@@ -220,11 +225,13 @@ function ToggleButton({
   active,
   onPress,
   disabled,
+  testID,
 }: {
   label: string
   active: boolean
   onPress: () => void
   disabled?: boolean
+  testID?: string
 }) {
   return (
     <TouchableOpacity
@@ -236,6 +243,7 @@ function ToggleButton({
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.7}
+      testID={testID}
     >
       <Text
         style={[

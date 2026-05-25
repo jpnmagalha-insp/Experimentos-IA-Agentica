@@ -6,5 +6,6 @@
       "@nutri-ia/shared": ["../../packages/shared/src"],
       "@nutri-ia/shared/*": ["../../packages/shared/src/*"]
     }
-  }
+  },
+  "exclude": ["e2e"]
 }
