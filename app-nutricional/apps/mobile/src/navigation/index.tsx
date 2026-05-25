@@ -1,12 +1,16 @@
 import React from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { ActivityIndicator, View, Text } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { useAuthStore } from '../store/auth.store'
 import { LoginScreen } from '../screens/auth/LoginScreen'
 import { RegisterScreen } from '../screens/auth/RegisterScreen'
 import { ForgotPasswordScreen } from '../screens/auth/ForgotPasswordScreen'
 import { OnboardingScreen } from '../screens/auth/OnboardingScreen'
+import { DailyLogScreen } from '../screens/home/DailyLogScreen'
+import { FoodSearchScreen } from '../screens/home/FoodSearchScreen'
+import type { MealType } from '@nutri-ia/shared'
 
 export type AuthStackParamList = {
   Login: undefined
@@ -16,11 +20,19 @@ export type AuthStackParamList = {
 
 export type AppStackParamList = {
   Onboarding: undefined
+  MainTabs: undefined
+  FoodSearch: { mealType: MealType; date: string }
+}
+
+export type AppTabParamList = {
   Home: undefined
+  Report: undefined
+  Profile: undefined
 }
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>()
 const AppStack = createNativeStackNavigator<AppStackParamList>()
+const AppTab = createBottomTabNavigator<AppTabParamList>()
 
 function AuthNavigator() {
   return (
@@ -32,6 +44,32 @@ function AuthNavigator() {
   )
 }
 
+function ReportPlaceholder() {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text style={{ fontSize: 16, color: '#888' }}>Relatório — Em breve</Text>
+    </View>
+  )
+}
+
+function ProfilePlaceholder() {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text style={{ fontSize: 16, color: '#888' }}>Perfil — Em breve</Text>
+    </View>
+  )
+}
+
+function TabNavigator() {
+  return (
+    <AppTab.Navigator screenOptions={{ headerShown: false }}>
+      <AppTab.Screen name="Home" component={DailyLogScreen} options={{ title: 'Início' }} />
+      <AppTab.Screen name="Report" component={ReportPlaceholder} options={{ title: 'Relatório' }} />
+      <AppTab.Screen name="Profile" component={ProfilePlaceholder} options={{ title: 'Perfil' }} />
+    </AppTab.Navigator>
+  )
+}
+
 function AppNavigator() {
   const needsOnboarding = useAuthStore((s) => s.needsOnboarding)
   return (
@@ -39,8 +77,14 @@ function AppNavigator() {
       {needsOnboarding ? (
         <AppStack.Screen name="Onboarding" component={OnboardingScreen} />
       ) : (
-        // Placeholder — substituído pelos tabs reais em M3+
-        <AppStack.Screen name="Home" component={OnboardingScreen} />
+        <>
+          <AppStack.Screen name="MainTabs" component={TabNavigator} />
+          <AppStack.Screen
+            name="FoodSearch"
+            component={FoodSearchScreen}
+            options={{ presentation: 'modal', headerShown: true, title: 'Buscar alimento' }}
+          />
+        </>
       )}
     </AppStack.Navigator>
   )
