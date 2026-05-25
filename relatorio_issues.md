@@ -232,7 +232,7 @@ curl -X POST http://localhost:3000/v1/auth/register \
 | NUT-133 | [frontend] DailyLogScreen com navegação de datas                       | `Done`  |
 | NUT-134 | [frontend] FoodSearchScreen com debounce 300ms                         | `Done`  |
 | NUT-135 | [frontend] FoodDetailScreen com gramas e medidas caseiras              | `Done`  |
-| NUT-136 | [integration] Fluxo completo: busca → seleção → quantidade → log       | Backlog |
+| NUT-136 | [integration] Fluxo completo: busca → seleção → quantidade → log       | `Done`  |
 | NUT-137 | [test-e2e] Log Alimentar — adicionar, editar, excluir e medida caseira | Backlog |
 
 ---
@@ -318,6 +318,18 @@ curl -X POST http://localhost:3000/v1/auth/register \
 | `apps/mobile/src/screens/home/FoodDetailScreen.tsx` | Reimplementação completa: tabela nutricional por 100g, toggle gramas/medidas caseiras, TextInput com preview em tempo real, picker de medidas, botão "Adicionar ao log" com loading state |
 
 > **Decisão técnica:** `calcPreview` duplica intencionalmente a lógica do `food-macros.calculator.ts` no cliente (mesmo arredondamento `Math.round(v * 10) / 10`) para preview instantâneo sem chamada à API; extração para `packages/shared` foi descartada pois o cálculo é trivial e a dependência seria apenas client-side.
+
+---
+
+#### NUT-136 — [integration] Fluxo completo: busca → seleção → quantidade → log `[Done - 2026-05-25]`
+
+**Arquivos criados:**
+
+| Arquivo                                                              | Descrição                                                                                                                                                                                                                                 |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/api/src/routes/food-log-flow.integration.test.ts`              | 4 testes de integração: ambos os plugins (`foodsPlugin` + `logsPlugin`) num único Fastify com serviços reais e repos mockados; chain GET /foods/search → POST /logs → GET /logs; exercita `calculateFoodMacros` de verdade validando os valores exatos do BDD (150g → 192 kcal · P:3.8g · G:0.3g · C:42.2g) |
+
+> **Decisão técnica:** serviços reais + repositórios mockados (em vez de services completamente mockados) garantem que `calculateFoodMacros` seja exercitado nas asserções, tornando o teste sensível a regressões na calculadora.
 
 ---
 
