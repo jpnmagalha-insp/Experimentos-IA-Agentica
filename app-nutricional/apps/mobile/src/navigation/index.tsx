@@ -10,7 +10,8 @@ import { ForgotPasswordScreen } from '../screens/auth/ForgotPasswordScreen'
 import { OnboardingScreen } from '../screens/auth/OnboardingScreen'
 import { DailyLogScreen } from '../screens/home/DailyLogScreen'
 import { FoodSearchScreen } from '../screens/home/FoodSearchScreen'
-import type { MealType } from '@nutri-ia/shared'
+import { FoodDetailScreen } from '../screens/home/FoodDetailScreen'
+import type { MealType, FoodDto } from '@nutri-ia/shared'
 
 export type AuthStackParamList = {
   Login: undefined
@@ -22,6 +23,7 @@ export type AppStackParamList = {
   Onboarding: undefined
   MainTabs: undefined
   FoodSearch: { mealType: MealType; date: string }
+  FoodDetail: { food: FoodDto; mealType: MealType; date: string }
 }
 
 export type AppTabParamList = {
@@ -83,6 +85,11 @@ function AppNavigator() {
             name="FoodSearch"
             component={FoodSearchScreen}
             options={{ presentation: 'modal', headerShown: true, title: 'Buscar alimento' }}
+          />
+          <AppStack.Screen
+            name="FoodDetail"
+            component={FoodDetailScreen}
+            options={{ presentation: 'modal', headerShown: true, title: 'Adicionar alimento' }}
           />
         </>
       )}
