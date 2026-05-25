@@ -159,3 +159,93 @@ describe('FoodLogRepository.findByUserAndDate', () => {
     }
   })
 })
+
+describe('FoodLogRepository.create', () => {
+  const repo = new FoodLogRepository()
+
+  let userId: string
+  let foodId: string
+
+  beforeAll(async () => {
+    const user = await prisma.user.create({
+      data: {
+        name: 'Test User FoodLog Create',
+        email: `test-foodlog-create-${Date.now()}@example.com`,
+      },
+    })
+    userId = user.id
+
+    const food = await prisma.food.create({
+      data: {
+        name: 'Maçã fuji',
+        caloriesPer100g: 52,
+        proteinPer100g: 0.3,
+        fatPer100g: 0.2,
+        carbPer100g: 13.8,
+      },
+    })
+    foodId = food.id
+  })
+
+  afterAll(async () => {
+    if (!userId) return
+    await prisma.foodLog.deleteMany({ where: { userId } })
+    await prisma.food.delete({ where: { id: foodId } })
+    await prisma.user.delete({ where: { id: userId } })
+  })
+
+  it('cria e retorna FoodLogWithFood com food: { id, name } incluído', async () => {
+    const result = await repo.create({
+      userId,
+      foodId,
+      logDate: new Date('2026-05-25T00:00:00.000Z'),
+      mealType: 'breakfast',
+      quantity: 100,
+      unit: 'g',
+      foodMeasureId: null,
+      calories: 52,
+      proteinG: 0.3,
+      fatG: 0.2,
+      carbG: 13.8,
+    })
+
+    expect(result.id).toBeDefined()
+    expect(result.userId).toBe(userId)
+    expect(result.foodId).toBe(foodId)
+    expect(result.mealType).toBe('breakfast')
+    expect(result.quantity).toBe(100)
+    expect(result.unit).toBe('g')
+    expect(result.foodMeasureId).toBeNull()
+    expect(result.calories).toBe(52)
+    expect(result.proteinG).toBe(0.3)
+    expect(result.fatG).toBe(0.2)
+    expect(result.carbG).toBe(13.8)
+    expect(result.food).toMatchObject({ id: foodId, name: 'Maçã fuji' })
+  })
+
+  it('o registro criado é acessível via prisma.foodLog.findUnique com todos os campos persistidos', async () => {
+    const created = await repo.create({
+      userId,
+      foodId,
+      logDate: new Date('2026-05-26T00:00:00.000Z'),
+      mealType: 'lunch',
+      quantity: 150,
+      unit: 'g',
+      foodMeasureId: null,
+      calories: 78,
+      proteinG: 0.45,
+      fatG: 0.3,
+      carbG: 20.7,
+    })
+
+    const persisted = await prisma.foodLog.findUnique({ where: { id: created.id } })
+
+    expect(persisted).not.toBeNull()
+    expect(persisted!.userId).toBe(userId)
+    expect(persisted!.foodId).toBe(foodId)
+    expect(persisted!.mealType).toBe('lunch')
+    expect(persisted!.quantity).toBe(150)
+    expect(persisted!.calories).toBe(78)
+    expect(persisted!.logDate).toEqual(new Date('2026-05-26T00:00:00.000Z'))
+  })
+})

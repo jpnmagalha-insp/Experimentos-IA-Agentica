@@ -1,8 +1,9 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import fp from 'fastify-plugin'
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { ZodError } from 'zod'
 import { ConflictError, ForbiddenError, NotFoundError, UnauthorizedError } from '../lib/errors'
 
-export async function errorHandler(fastify: FastifyInstance) {
+export const errorHandler = fp(async function errorHandler(fastify: FastifyInstance) {
   fastify.setErrorHandler((error: Error, _req: FastifyRequest, reply: FastifyReply) => {
     if (error instanceof ZodError) {
       return reply.status(400).send({ error: 'Dados inválidos', details: error.flatten().fieldErrors })
@@ -22,4 +23,4 @@ export async function errorHandler(fastify: FastifyInstance) {
     fastify.log.error(error)
     return reply.status(500).send({ error: 'Erro interno do servidor' })
   })
-}
+})

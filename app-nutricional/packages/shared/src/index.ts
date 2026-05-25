@@ -61,13 +61,33 @@ export const foodIdParamSchema = z.object({
 
 export const mealTypeSchema = z.enum(['breakfast', 'lunch', 'dinner', 'snack'])
 
-export const createLogSchema = z.object({
-  foodId: z.string().uuid(),
-  logDate: z.string().date(),
+export const createLogSchema = z
+  .object({
+    foodId: z.string().uuid(),
+    logDate: z.string().date(),
+    mealType: mealTypeSchema,
+    quantity: z.number().positive(),
+    unit: z.enum(['g', 'measure']).default('g'),
+    foodMeasureId: z.string().uuid().optional(),
+  })
+  .refine((d) => d.unit !== 'measure' || !!d.foodMeasureId, {
+    message: 'foodMeasureId is required when unit is "measure"',
+    path: ['foodMeasureId'],
+  })
+
+export const createLogResponseSchema = z.object({
+  id: z.string().uuid(),
+  food: z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+  }),
   mealType: mealTypeSchema,
   quantity: z.number().positive(),
-  unit: z.string().default('g'),
-  foodMeasureId: z.string().uuid().optional(),
+  unit: z.enum(['g', 'measure']),
+  calories: z.number(),
+  proteinG: z.number(),
+  fatG: z.number(),
+  carbG: z.number(),
 })
 
 export const macroResultSchema = z.object({
@@ -118,6 +138,7 @@ export type MealType = z.infer<typeof mealTypeSchema>
 export type FoodDto = z.infer<typeof foodSchema>
 export type FoodMeasureDto = z.infer<typeof foodMeasureSchema>
 export type CreateLogDto = z.infer<typeof createLogSchema>
+export type CreateLogResponseDto = z.infer<typeof createLogResponseSchema>
 export type MacroResult = z.infer<typeof macroResultSchema>
 export type FoodSearchQueryDto = z.infer<typeof foodSearchQuerySchema>
 export type FoodSearchResponseDto = z.infer<typeof foodSearchResponseSchema>

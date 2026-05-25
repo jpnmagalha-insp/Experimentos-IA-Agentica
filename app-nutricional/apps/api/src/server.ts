@@ -24,7 +24,7 @@ const start = async () => {
     const foodRepository = new FoodRepository()
     const foodService = new FoodService(foodRepository)
     const foodLogRepository = new FoodLogRepository()
-    const foodLogService = new FoodLogService(foodLogRepository)
+    const foodLogService = new FoodLogService(foodLogRepository, foodRepository)
 
     await fastify.register(errorHandler)
     await fastify.register(authRoutes, { prefix: '/v1' })

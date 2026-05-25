@@ -1,9 +1,15 @@
 import type { FoodLogRepository, FoodLogWithFood } from '../repositories/foodLog.repository'
-import type { DailyLogsResponseDto, FoodLogItemDto } from '@nutri-ia/shared'
+import type { FoodRepository } from '../repositories/food.repository'
+import type { CreateLogDto, CreateLogResponseDto, DailyLogsResponseDto, FoodLogItemDto } from '@nutri-ia/shared'
 import { MealType } from '@prisma/client'
+import { NotFoundError } from '../lib/errors'
+import { calculateFoodMacros } from '../calculators/food-macros.calculator'
 
 export class FoodLogService {
-  constructor(private readonly foodLogRepository: FoodLogRepository) {}
+  constructor(
+    private readonly foodLogRepository: FoodLogRepository,
+    private readonly foodRepository: FoodRepository,
+  ) {}
 
   async getDailyLogs(userId: string, date: string): Promise<DailyLogsResponseDto> {
     const logs = await this.foodLogRepository.findByUserAndDate(userId, date)
@@ -34,6 +40,49 @@ export class FoodLogService {
         fatG: round2(totals.fatG),
         carbG: round2(totals.carbG),
       },
+    }
+  }
+
+  async createLog(userId: string, dto: CreateLogDto): Promise<CreateLogResponseDto> {
+    const food = await this.foodRepository.findById(dto.foodId)
+    if (!food) {
+      throw new NotFoundError('Food not found')
+    }
+
+    let measure: { gramsEquivalent: number } | undefined
+    if (dto.unit === 'measure') {
+      const found = food.measures.find((m) => m.id === dto.foodMeasureId)
+      if (!found) {
+        throw new NotFoundError('Food measure not found')
+      }
+      measure = found
+    }
+
+    const macros = calculateFoodMacros(food, dto.quantity, dto.unit, measure)
+    const logDate = new Date(`${dto.logDate}T00:00:00.000Z`)
+    const foodMeasureId = dto.unit === 'measure' ? (dto.foodMeasureId ?? null) : null
+
+    const created = await this.foodLogRepository.create({
+      userId,
+      foodId: dto.foodId,
+      logDate,
+      mealType: dto.mealType,
+      quantity: dto.quantity,
+      unit: dto.unit,
+      foodMeasureId,
+      ...macros,
+    })
+
+    return {
+      id: created.id,
+      food: { id: created.food.id, name: created.food.name },
+      mealType: created.mealType,
+      quantity: created.quantity,
+      unit: created.unit as 'g' | 'measure',
+      calories: created.calories,
+      proteinG: created.proteinG,
+      fatG: created.fatG,
+      carbG: created.carbG,
     }
   }
 }
