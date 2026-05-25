@@ -86,6 +86,17 @@ export class FoodLogService {
     }
   }
 
+  async deleteLog(userId: string, logId: string): Promise<void> {
+    const log = await this.foodLogRepository.findById(logId)
+    if (!log) {
+      throw new NotFoundError('Food log not found')
+    }
+    if (log.userId !== userId) {
+      throw new ForbiddenError('Access denied')
+    }
+    await this.foodLogRepository.delete(logId)
+  }
+
   async updateLog(userId: string, logId: string, dto: UpdateLogDto): Promise<UpdateLogResponseDto> {
     const log = await this.foodLogRepository.findById(logId)
     if (!log) {

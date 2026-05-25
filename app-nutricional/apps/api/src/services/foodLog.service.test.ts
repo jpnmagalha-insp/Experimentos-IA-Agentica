@@ -476,6 +476,80 @@ const makeFoodLogWithMeasures = (overrides: Partial<FoodLogWithFoodAndMeasures> 
   ...overrides,
 })
 
+describe('FoodLogService.deleteLog', () => {
+  let service: FoodLogService
+  let mockFoodLogRepo: {
+    findByUserAndDate: ReturnType<typeof vi.fn>
+    create: ReturnType<typeof vi.fn>
+    findById: ReturnType<typeof vi.fn>
+    delete: ReturnType<typeof vi.fn>
+  }
+
+  beforeEach(() => {
+    mockFoodLogRepo = {
+      findByUserAndDate: vi.fn(),
+      create: vi.fn(),
+      findById: vi.fn(),
+      delete: vi.fn(),
+    }
+    service = new FoodLogService(
+      mockFoodLogRepo as unknown as FoodLogRepository,
+      {} as unknown as FoodRepository,
+    )
+  })
+
+  it('lança NotFoundError "Food log not found" quando findById retorna null', async () => {
+    mockFoodLogRepo.findById.mockResolvedValue(null)
+
+    await expect(service.deleteLog(USER_ID, LOG_ID)).rejects.toThrow(NotFoundError)
+    await expect(service.deleteLog(USER_ID, LOG_ID)).rejects.toThrow('Food log not found')
+  })
+
+  it('não chama delete quando findById retorna null', async () => {
+    mockFoodLogRepo.findById.mockResolvedValue(null)
+
+    await expect(service.deleteLog(USER_ID, LOG_ID)).rejects.toThrow(NotFoundError)
+
+    expect(mockFoodLogRepo.delete).not.toHaveBeenCalled()
+  })
+
+  it('lança ForbiddenError "Access denied" quando log.userId !== userId', async () => {
+    const log = makeFoodLogWithMeasures({ userId: 'other-user-id' })
+    mockFoodLogRepo.findById.mockResolvedValue(log)
+
+    await expect(service.deleteLog(USER_ID, LOG_ID)).rejects.toThrow(ForbiddenError)
+    await expect(service.deleteLog(USER_ID, LOG_ID)).rejects.toThrow('Access denied')
+  })
+
+  it('não chama delete quando log.userId !== userId', async () => {
+    const log = makeFoodLogWithMeasures({ userId: 'other-user-id' })
+    mockFoodLogRepo.findById.mockResolvedValue(log)
+
+    await expect(service.deleteLog(USER_ID, LOG_ID)).rejects.toThrow(ForbiddenError)
+
+    expect(mockFoodLogRepo.delete).not.toHaveBeenCalled()
+  })
+
+  it('chama delete com o logId correto quando ownership está ok', async () => {
+    const log = makeFoodLogWithMeasures({ userId: USER_ID })
+    mockFoodLogRepo.findById.mockResolvedValue(log)
+    mockFoodLogRepo.delete.mockResolvedValue(undefined)
+
+    await service.deleteLog(USER_ID, LOG_ID)
+
+    expect(mockFoodLogRepo.delete).toHaveBeenCalledOnce()
+    expect(mockFoodLogRepo.delete).toHaveBeenCalledWith(LOG_ID)
+  })
+
+  it('propaga erros do repository.delete sem capturar', async () => {
+    const log = makeFoodLogWithMeasures({ userId: USER_ID })
+    mockFoodLogRepo.findById.mockResolvedValue(log)
+    mockFoodLogRepo.delete.mockRejectedValue(new Error('DB delete error'))
+
+    await expect(service.deleteLog(USER_ID, LOG_ID)).rejects.toThrow('DB delete error')
+  })
+})
+
 describe('FoodLogService.updateLog', () => {
   let service: FoodLogService
   let mockFoodLogRepo: {

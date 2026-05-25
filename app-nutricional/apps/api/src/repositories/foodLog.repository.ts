@@ -81,4 +81,8 @@ export class FoodLogRepository {
       include: { food: { select: { id: true, name: true } } },
     })
   }
+
+  async delete(id: string): Promise<void> {
+    await prisma.foodLog.delete({ where: { id } })
+  }
 }

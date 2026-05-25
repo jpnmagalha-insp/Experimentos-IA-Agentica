@@ -351,6 +351,112 @@ describe('POST /logs', () => {
 })
 
 // ---------------------------------------------------------------------------
+// DELETE /logs/:id
+// ---------------------------------------------------------------------------
+
+describe('DELETE /logs/:id', () => {
+  let app: ReturnType<typeof Fastify>
+  const mockService = { deleteLog: vi.fn() }
+
+  beforeAll(async () => {
+    app = Fastify({ logger: false })
+    await app.register(errorHandler)
+    await app.register(logsPlugin, { logService: mockService as unknown as FoodLogService })
+    await app.ready()
+  })
+
+  afterAll(async () => {
+    await app.close()
+  })
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('retorna 204 sem body quando service retorna sucesso', async () => {
+    mockService.deleteLog.mockResolvedValue(undefined)
+
+    const res = await app.inject({
+      method: 'DELETE',
+      url: `/logs/${LOG_ID}`,
+      headers: { authorization: 'Bearer fake-token' },
+    })
+
+    expect(res.statusCode).toBe(204)
+    expect(res.body).toBe('')
+  })
+
+  it('retorna 400 quando :id não é UUID válido', async () => {
+    const res = await app.inject({
+      method: 'DELETE',
+      url: '/logs/nao-e-um-uuid',
+      headers: { authorization: 'Bearer fake-token' },
+    })
+
+    expect(res.statusCode).toBe(400)
+    const body = JSON.parse(res.body)
+    expect(body.error).toBe('Validation error')
+  })
+
+  it('retorna 404 quando service lança NotFoundError', async () => {
+    mockService.deleteLog.mockRejectedValue(new NotFoundError('Food log not found'))
+
+    const res = await app.inject({
+      method: 'DELETE',
+      url: `/logs/${LOG_ID}`,
+      headers: { authorization: 'Bearer fake-token' },
+    })
+
+    expect(res.statusCode).toBe(404)
+    const body = JSON.parse(res.body)
+    expect(body.error).toBe('Food log not found')
+  })
+
+  it('retorna 403 quando service lança ForbiddenError', async () => {
+    mockService.deleteLog.mockRejectedValue(new ForbiddenError('Access denied'))
+
+    const res = await app.inject({
+      method: 'DELETE',
+      url: `/logs/${LOG_ID}`,
+      headers: { authorization: 'Bearer fake-token' },
+    })
+
+    expect(res.statusCode).toBe(403)
+    const body = JSON.parse(res.body)
+    expect(body.error).toBe('Access denied')
+  })
+
+  it('retorna 401 quando authenticate rejeita', async () => {
+    vi.mocked(authenticate).mockImplementationOnce(async (_req, reply) => {
+      return reply.status(401).send({ error: 'Token ausente' })
+    })
+
+    const res = await app.inject({
+      method: 'DELETE',
+      url: `/logs/${LOG_ID}`,
+    })
+
+    expect(res.statusCode).toBe(401)
+  })
+
+  it('chama deleteLog com userId correto e logId correto', async () => {
+    mockService.deleteLog.mockResolvedValue(undefined)
+
+    await app.inject({
+      method: 'DELETE',
+      url: `/logs/${LOG_ID}`,
+      headers: { authorization: 'Bearer fake-token' },
+    })
+
+    expect(mockService.deleteLog).toHaveBeenCalledOnce()
+    expect(mockService.deleteLog).toHaveBeenCalledWith(
+      'user-test-id-00000000-0000-0000-0000',
+      LOG_ID,
+    )
+  })
+})
+
+// ---------------------------------------------------------------------------
 // PUT /logs/:id
 // ---------------------------------------------------------------------------
 

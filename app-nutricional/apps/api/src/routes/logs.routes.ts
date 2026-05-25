@@ -26,6 +26,15 @@ export const logsPlugin: FastifyPluginAsync<LogsPluginOptions> = async (fastify,
     return reply.status(201).send(log)
   })
 
+  fastify.delete('/logs/:id', { preHandler: authenticate }, async (request, reply) => {
+    const paramsResult = foodIdParamSchema.safeParse(request.params)
+    if (!paramsResult.success) {
+      return reply.status(400).send({ error: 'Validation error', details: paramsResult.error.issues })
+    }
+    await opts.logService.deleteLog(request.user.id, paramsResult.data.id)
+    return reply.status(204).send()
+  })
+
   fastify.put('/logs/:id', { preHandler: authenticate }, async (request, reply) => {
     const paramsResult = foodIdParamSchema.safeParse(request.params)
     if (!paramsResult.success) {

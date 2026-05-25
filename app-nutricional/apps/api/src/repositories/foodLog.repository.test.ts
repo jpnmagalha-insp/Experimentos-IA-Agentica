@@ -333,6 +333,66 @@ describe('FoodLogRepository.findById', () => {
   })
 })
 
+describe('FoodLogRepository.delete', () => {
+  const repo = new FoodLogRepository()
+
+  let userId: string
+  let foodId: string
+  let logId: string
+
+  beforeAll(async () => {
+    const user = await prisma.user.create({
+      data: {
+        name: 'Test User Delete',
+        email: `test-foodlog-delete-${Date.now()}@example.com`,
+      },
+    })
+    userId = user.id
+
+    const food = await prisma.food.create({
+      data: {
+        name: 'Laranja pera',
+        caloriesPer100g: 43,
+        proteinPer100g: 0.8,
+        fatPer100g: 0.1,
+        carbPer100g: 10.8,
+      },
+    })
+    foodId = food.id
+
+    const log = await prisma.foodLog.create({
+      data: {
+        userId,
+        foodId,
+        logDate: new Date('2026-05-25T00:00:00.000Z'),
+        mealType: 'snack',
+        quantity: 150,
+        unit: 'g',
+        foodMeasureId: null,
+        calories: 64.5,
+        proteinG: 1.2,
+        fatG: 0.15,
+        carbG: 16.2,
+      },
+    })
+    logId = log.id
+  })
+
+  afterAll(async () => {
+    if (!userId) return
+    await prisma.foodLog.deleteMany({ where: { userId } })
+    await prisma.food.delete({ where: { id: foodId } })
+    await prisma.user.delete({ where: { id: userId } })
+  })
+
+  it('deleta o registro e ele não é mais encontrado via findUnique', async () => {
+    await repo.delete(logId)
+
+    const persisted = await prisma.foodLog.findUnique({ where: { id: logId } })
+    expect(persisted).toBeNull()
+  })
+})
+
 describe('FoodLogRepository.update', () => {
   const repo = new FoodLogRepository()
 
