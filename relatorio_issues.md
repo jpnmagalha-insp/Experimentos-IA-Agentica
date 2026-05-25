@@ -275,7 +275,7 @@ M3 — Log Alimentar
 Epic:   NUT-126 — EPIC: Log Alimentar
 Issues: NUT-127 — [backend] Implementar GET /foods/search com unaccent e debounce
         NUT-128 — [backend] Implementar GET /foods/:id
-        NUT-129 — [backend] Implementar GET /logs?date= com totais por refeição
+        NUT-129 — [backend] Implementar GET /logs?date= com totais por refeição `[Done]`
         NUT-130 — [backend] Implementar POST /logs com cálculo de macros (DR-06, DR-07)
         NUT-131 — [backend] Implementar PUT /logs/:id com recálculo de macros
         NUT-132 — [backend] Implementar DELETE /logs/:id
@@ -338,6 +338,7 @@ Issues: NUT-150 — Configurar Detox para testes E2E em iOS e Android
 
 #### NUT-128 — [backend] Implementar GET /foods/:id `[Done - 2026-05-22]`
 
+
 **Arquivos criados:**
 
 | Arquivo                                             | Descrição                                                                                                                                                                  |
@@ -349,6 +350,23 @@ Issues: NUT-150 — Configurar Detox para testes E2E em iOS e Android
 | `apps/api/src/repositories/food.repository.test.ts` | +3 testes de integração para `findById`: encontra food com measures, retorna null para UUID inexistente, verifica campos id/description/gramsEquivalent das measures         |
 | `apps/api/src/services/food.service.test.ts`        | +3 testes unitários para `findById`: delegação com id correto, propagação de null, propagação de erro                                                                       |
 | `apps/api/src/routes/foods.routes.test.ts`          | +4 testes via `app.inject`: 200 food sem envelope (com guard `not.toHaveProperty('tacoId')`), 404 quando null, 400 UUID inválido, delegação com id correto                 |
+
+#### NUT-129 — [backend] Implementar GET /logs?date= com totais por refeição `[Done - 2026-05-25]`
+
+**Arquivos criados:**
+
+| Arquivo                                                        | Descrição                                                                                                                                                                                                |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/shared/src/index.ts`                                 | Adicionados `dailyLogsQuerySchema` (date YYYY-MM-DD, default UTC today), `foodLogItemSchema`, `dailyLogsResponseSchema` (reutiliza `macroResultSchema`) e tipos `DailyLogsQueryDto`, `FoodLogItemDto`, `DailyLogsResponseDto` |
+| `apps/api/src/repositories/foodLog.repository.ts`              | `FoodLogRepository.findByUserAndDate()`: filtra por `userId` + `logDate` (UTC-safe: `new Date(\`${date}T00:00:00.000Z\`)`), inclui `food.{id,name}`, ordena por `createdAt asc`                          |
+| `apps/api/src/services/foodLog.service.ts`                     | `FoodLogService.getDailyLogs()`: agrupa logs por `mealType` (4 chaves sempre presentes), soma macros desnormalizados com `round2()` (2 casas decimais) para evitar float drift; usa `MealType` do Prisma sem cast inseguro |
+| `apps/api/src/routes/logs.routes.ts`                           | Plugin `logsPlugin` com `GET /logs`, `preHandler: authenticate`, validação Zod via `safeParse` (400 em falha), delega a `logService.getDailyLogs(req.user.id, date)`                                     |
+| `apps/api/src/routes/logs.routes.test.ts`                      | 6 testes de rota: 400 date inválida, 200 dados populados, 200 dia vazio (4 arrays vazios + totals zerados), default UTC today, userId propagado corretamente, 401 sem Authorization                      |
+| `apps/api/src/services/foodLog.service.test.ts`                | 10 testes de service: agrupamento por mealType (4 cenários), soma de macros com múltiplos logs, 4 chaves sempre presentes, shape de item, delegação ao repo, propagação de erro do repo                 |
+| `apps/api/src/repositories/foodLog.repository.test.ts`         | 5 testes de repo (Prisma real, requer DB): resultado vazio, include `food.{id,name}`, isolamento por userId, isolamento por logDate, ordenação por `createdAt asc`                                       |
+| `apps/api/src/server.ts`                                       | Wiring: instancia `FoodLogRepository` + `FoodLogService`, registra `logsPlugin` com prefixo `/v1`                                                                                                        |
+
+> **Nota técnica:** A issue referencia `domain-rules.md DR-08` (arquivo inexistente no repo) e `requirements.md R4.7` (numeração incorreta — é Requirement 4 critério 7). Implementação seguiu o contrato literal de `api.md:231-264` e `data-model.md:208-212`.
 
 ---
 

@@ -77,6 +77,37 @@ export const macroResultSchema = z.object({
   carbG: z.number(),
 })
 
+// --- Food Log Query / Response ---
+
+export const dailyLogsQuerySchema = z.object({
+  date: z.string().date().default(() => new Date().toISOString().slice(0, 10)),
+})
+
+export const foodLogItemSchema = z.object({
+  id: z.string().uuid(),
+  food: z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+  }),
+  quantity: z.number().positive(),
+  unit: z.string(),
+  calories: z.number(),
+  proteinG: z.number(),
+  fatG: z.number(),
+  carbG: z.number(),
+})
+
+export const dailyLogsResponseSchema = z.object({
+  date: z.string().date(),
+  meals: z.object({
+    breakfast: z.array(foodLogItemSchema),
+    lunch: z.array(foodLogItemSchema),
+    dinner: z.array(foodLogItemSchema),
+    snack: z.array(foodLogItemSchema),
+  }),
+  totals: macroResultSchema,
+})
+
 // --- Types ---
 
 export type LoginDto = z.infer<typeof loginSchema>
@@ -91,3 +122,6 @@ export type MacroResult = z.infer<typeof macroResultSchema>
 export type FoodSearchQueryDto = z.infer<typeof foodSearchQuerySchema>
 export type FoodSearchResponseDto = z.infer<typeof foodSearchResponseSchema>
 export type FoodIdParamDto = z.infer<typeof foodIdParamSchema>
+export type DailyLogsQueryDto = z.infer<typeof dailyLogsQuerySchema>
+export type FoodLogItemDto = z.infer<typeof foodLogItemSchema>
+export type DailyLogsResponseDto = z.infer<typeof dailyLogsResponseSchema>
