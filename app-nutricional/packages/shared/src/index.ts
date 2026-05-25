@@ -90,6 +90,17 @@ export const createLogResponseSchema = z.object({
   carbG: z.number(),
 })
 
+export const updateLogSchema = z
+  .object({
+    quantity: z.number().positive(),
+    unit: z.enum(['g', 'measure']).default('g'),
+    foodMeasureId: z.string().uuid().optional(),
+  })
+  .refine((d) => d.unit !== 'measure' || !!d.foodMeasureId, {
+    message: 'foodMeasureId is required when unit is "measure"',
+    path: ['foodMeasureId'],
+  })
+
 export const macroResultSchema = z.object({
   calories: z.number(),
   proteinG: z.number(),
@@ -139,6 +150,8 @@ export type FoodDto = z.infer<typeof foodSchema>
 export type FoodMeasureDto = z.infer<typeof foodMeasureSchema>
 export type CreateLogDto = z.infer<typeof createLogSchema>
 export type CreateLogResponseDto = z.infer<typeof createLogResponseSchema>
+export type UpdateLogDto = z.infer<typeof updateLogSchema>
+export type UpdateLogResponseDto = z.infer<typeof createLogResponseSchema>
 export type MacroResult = z.infer<typeof macroResultSchema>
 export type FoodSearchQueryDto = z.infer<typeof foodSearchQuerySchema>
 export type FoodSearchResponseDto = z.infer<typeof foodSearchResponseSchema>

@@ -1,8 +1,8 @@
 import type { FoodLogRepository, FoodLogWithFood } from '../repositories/foodLog.repository'
 import type { FoodRepository } from '../repositories/food.repository'
-import type { CreateLogDto, CreateLogResponseDto, DailyLogsResponseDto, FoodLogItemDto } from '@nutri-ia/shared'
+import type { CreateLogDto, CreateLogResponseDto, DailyLogsResponseDto, FoodLogItemDto, UpdateLogDto, UpdateLogResponseDto } from '@nutri-ia/shared'
 import { MealType } from '@prisma/client'
-import { NotFoundError } from '../lib/errors'
+import { NotFoundError, ForbiddenError } from '../lib/errors'
 import { calculateFoodMacros } from '../calculators/food-macros.calculator'
 
 export class FoodLogService {
@@ -83,6 +83,47 @@ export class FoodLogService {
       proteinG: created.proteinG,
       fatG: created.fatG,
       carbG: created.carbG,
+    }
+  }
+
+  async updateLog(userId: string, logId: string, dto: UpdateLogDto): Promise<UpdateLogResponseDto> {
+    const log = await this.foodLogRepository.findById(logId)
+    if (!log) {
+      throw new NotFoundError('Food log not found')
+    }
+    if (log.userId !== userId) {
+      throw new ForbiddenError('Access denied')
+    }
+
+    let measure: { gramsEquivalent: number } | undefined
+    if (dto.unit === 'measure') {
+      const found = log.food.measures.find((m) => m.id === dto.foodMeasureId)
+      if (!found) {
+        throw new NotFoundError('Food measure not found')
+      }
+      measure = found
+    }
+
+    const macros = calculateFoodMacros(log.food, dto.quantity, dto.unit, measure)
+    const foodMeasureId = dto.unit === 'measure' ? (dto.foodMeasureId ?? null) : null
+
+    const updated = await this.foodLogRepository.update(logId, {
+      quantity: dto.quantity,
+      unit: dto.unit,
+      foodMeasureId,
+      ...macros,
+    })
+
+    return {
+      id: updated.id,
+      food: { id: updated.food.id, name: updated.food.name },
+      mealType: updated.mealType,
+      quantity: updated.quantity,
+      unit: updated.unit as 'g' | 'measure',
+      calories: updated.calories,
+      proteinG: updated.proteinG,
+      fatG: updated.fatG,
+      carbG: updated.carbG,
     }
   }
 }

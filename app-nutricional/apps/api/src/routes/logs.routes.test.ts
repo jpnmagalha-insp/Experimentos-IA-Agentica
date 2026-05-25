@@ -3,9 +3,9 @@ import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from 'vites
 import { logsPlugin } from './logs.routes'
 import { authenticate } from '../middlewares/authenticate'
 import { errorHandler } from '../middlewares/error-handler'
-import { NotFoundError } from '../lib/errors'
+import { NotFoundError, ForbiddenError } from '../lib/errors'
 import type { FoodLogService } from '../services/foodLog.service'
-import type { CreateLogResponseDto, DailyLogsResponseDto } from '@nutri-ia/shared'
+import type { CreateLogResponseDto, DailyLogsResponseDto, UpdateLogResponseDto } from '@nutri-ia/shared'
 
 vi.mock('../middlewares/authenticate', () => ({
   authenticate: vi.fn(async (req: { user: { id: string } }) => {
@@ -346,6 +346,174 @@ describe('POST /logs', () => {
     expect(mockService.createLog).toHaveBeenCalledWith(
       'user-test-id-00000000-0000-0000-0000',
       expect.objectContaining({ foodId: FOOD_ID }),
+    )
+  })
+})
+
+// ---------------------------------------------------------------------------
+// PUT /logs/:id
+// ---------------------------------------------------------------------------
+
+const mockUpdateLogResponse: UpdateLogResponseDto = {
+  id: LOG_ID,
+  food: { id: FOOD_ID, name: 'Banana prata' },
+  mealType: 'breakfast',
+  quantity: 120,
+  unit: 'g',
+  calories: 106.8,
+  proteinG: 1.3,
+  fatG: 0.4,
+  carbG: 27.4,
+}
+
+const validPutBody = {
+  quantity: 120,
+  unit: 'g',
+}
+
+describe('PUT /logs/:id', () => {
+  let app: ReturnType<typeof Fastify>
+  const mockService = { getDailyLogs: vi.fn(), createLog: vi.fn(), updateLog: vi.fn() }
+
+  beforeAll(async () => {
+    app = Fastify({ logger: false })
+    await app.register(errorHandler)
+    await app.register(logsPlugin, { logService: mockService as unknown as FoodLogService })
+    await app.ready()
+  })
+
+  afterAll(async () => {
+    await app.close()
+  })
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('retorna 200 com shape completo quando service retorna sucesso', async () => {
+    mockService.updateLog.mockResolvedValue(mockUpdateLogResponse)
+
+    const res = await app.inject({
+      method: 'PUT',
+      url: `/logs/${LOG_ID}`,
+      headers: { authorization: 'Bearer fake-token', 'content-type': 'application/json' },
+      body: JSON.stringify(validPutBody),
+    })
+
+    expect(res.statusCode).toBe(200)
+    const body = JSON.parse(res.body) as UpdateLogResponseDto
+    expect(body).toMatchObject({
+      id: LOG_ID,
+      food: { id: FOOD_ID, name: 'Banana prata' },
+      mealType: 'breakfast',
+      quantity: 120,
+      unit: 'g',
+      calories: 106.8,
+      proteinG: 1.3,
+      fatG: 0.4,
+      carbG: 27.4,
+    })
+  })
+
+  it('retorna 400 quando :id não é UUID válido', async () => {
+    const res = await app.inject({
+      method: 'PUT',
+      url: '/logs/nao-e-um-uuid',
+      headers: { authorization: 'Bearer fake-token', 'content-type': 'application/json' },
+      body: JSON.stringify(validPutBody),
+    })
+
+    expect(res.statusCode).toBe(400)
+    const body = JSON.parse(res.body)
+    expect(body.error).toBe('Validation error')
+  })
+
+  it('retorna 400 quando quantity é negativo ou zero (violação Zod)', async () => {
+    const res = await app.inject({
+      method: 'PUT',
+      url: `/logs/${LOG_ID}`,
+      headers: { authorization: 'Bearer fake-token', 'content-type': 'application/json' },
+      body: JSON.stringify({ quantity: -5, unit: 'g' }),
+    })
+
+    expect(res.statusCode).toBe(400)
+    const body = JSON.parse(res.body)
+    expect(body.error).toBe('Validation error')
+  })
+
+  it('retorna 400 quando unit="measure" sem foodMeasureId (refine Zod)', async () => {
+    const res = await app.inject({
+      method: 'PUT',
+      url: `/logs/${LOG_ID}`,
+      headers: { authorization: 'Bearer fake-token', 'content-type': 'application/json' },
+      body: JSON.stringify({ quantity: 2, unit: 'measure' }),
+    })
+
+    expect(res.statusCode).toBe(400)
+    const body = JSON.parse(res.body)
+    expect(body.error).toBe('Validation error')
+  })
+
+  it('retorna 404 quando service lança NotFoundError', async () => {
+    mockService.updateLog.mockRejectedValue(new NotFoundError('Food log not found'))
+
+    const res = await app.inject({
+      method: 'PUT',
+      url: `/logs/${LOG_ID}`,
+      headers: { authorization: 'Bearer fake-token', 'content-type': 'application/json' },
+      body: JSON.stringify(validPutBody),
+    })
+
+    expect(res.statusCode).toBe(404)
+    const body = JSON.parse(res.body)
+    expect(body.error).toBe('Food log not found')
+  })
+
+  it('retorna 403 quando service lança ForbiddenError', async () => {
+    mockService.updateLog.mockRejectedValue(new ForbiddenError('Access denied'))
+
+    const res = await app.inject({
+      method: 'PUT',
+      url: `/logs/${LOG_ID}`,
+      headers: { authorization: 'Bearer fake-token', 'content-type': 'application/json' },
+      body: JSON.stringify(validPutBody),
+    })
+
+    expect(res.statusCode).toBe(403)
+    const body = JSON.parse(res.body)
+    expect(body.error).toBe('Access denied')
+  })
+
+  it('retorna 401 quando authenticate rejeita', async () => {
+    vi.mocked(authenticate).mockImplementationOnce(async (_req, reply) => {
+      return reply.status(401).send({ error: 'Token ausente' })
+    })
+
+    const res = await app.inject({
+      method: 'PUT',
+      url: `/logs/${LOG_ID}`,
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(validPutBody),
+    })
+
+    expect(res.statusCode).toBe(401)
+  })
+
+  it('chama updateLog com userId correto, logId correto e dto correto', async () => {
+    mockService.updateLog.mockResolvedValue(mockUpdateLogResponse)
+
+    await app.inject({
+      method: 'PUT',
+      url: `/logs/${LOG_ID}`,
+      headers: { authorization: 'Bearer fake-token', 'content-type': 'application/json' },
+      body: JSON.stringify(validPutBody),
+    })
+
+    expect(mockService.updateLog).toHaveBeenCalledOnce()
+    expect(mockService.updateLog).toHaveBeenCalledWith(
+      'user-test-id-00000000-0000-0000-0000',
+      LOG_ID,
+      expect.objectContaining({ quantity: 120, unit: 'g' }),
     )
   })
 })

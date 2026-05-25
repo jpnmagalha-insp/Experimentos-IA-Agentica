@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { FoodLogRepository } from './foodLog.repository'
+import type { FoodLogWithFoodAndMeasures, FoodLogWithFood } from './foodLog.repository'
 import { prisma } from '../lib/prisma'
 
 describe('FoodLogRepository.findByUserAndDate', () => {
@@ -247,5 +248,181 @@ describe('FoodLogRepository.create', () => {
     expect(persisted!.quantity).toBe(150)
     expect(persisted!.calories).toBe(78)
     expect(persisted!.logDate).toEqual(new Date('2026-05-26T00:00:00.000Z'))
+  })
+})
+
+describe('FoodLogRepository.findById', () => {
+  const repo = new FoodLogRepository()
+
+  let userId: string
+  let foodId: string
+  let measureId: string
+  let logId: string
+
+  beforeAll(async () => {
+    const user = await prisma.user.create({
+      data: {
+        name: 'Test User FindById',
+        email: `test-foodlog-findbyid-${Date.now()}@example.com`,
+      },
+    })
+    userId = user.id
+
+    const food = await prisma.food.create({
+      data: {
+        name: 'Arroz cozido',
+        caloriesPer100g: 130,
+        proteinPer100g: 2.5,
+        fatPer100g: 0.2,
+        carbPer100g: 28.1,
+        measures: {
+          create: [{ description: 'colher de sopa', gramsEquivalent: 25 }],
+        },
+      },
+      include: { measures: true },
+    })
+    foodId = food.id
+    measureId = food.measures[0].id
+
+    const log = await prisma.foodLog.create({
+      data: {
+        userId,
+        foodId,
+        logDate: new Date('2026-05-25T00:00:00.000Z'),
+        mealType: 'lunch',
+        quantity: 100,
+        unit: 'g',
+        foodMeasureId: null,
+        calories: 130,
+        proteinG: 2.5,
+        fatG: 0.2,
+        carbG: 28.1,
+      },
+    })
+    logId = log.id
+  })
+
+  afterAll(async () => {
+    if (!userId) return
+    await prisma.foodLog.deleteMany({ where: { userId } })
+    await prisma.foodMeasure.deleteMany({ where: { foodId } })
+    await prisma.food.delete({ where: { id: foodId } })
+    await prisma.user.delete({ where: { id: userId } })
+  })
+
+  it('retorna null para id inexistente', async () => {
+    const result = await repo.findById('00000000-0000-0000-0000-000000000000')
+
+    expect(result).toBeNull()
+  })
+
+  it('retorna o log com food.measures quando encontrado', async () => {
+    const result: FoodLogWithFoodAndMeasures | null = await repo.findById(logId)
+
+    expect(result).not.toBeNull()
+    expect(result!.id).toBe(logId)
+    expect(result!.food.id).toBe(foodId)
+    expect(result!.food.name).toBe('Arroz cozido')
+    expect(result!.food.caloriesPer100g).toBe(130)
+    expect(result!.food.proteinPer100g).toBe(2.5)
+    expect(result!.food.fatPer100g).toBe(0.2)
+    expect(result!.food.carbPer100g).toBe(28.1)
+    expect(result!.food.measures).toHaveLength(1)
+    expect(result!.food.measures[0].id).toBe(measureId)
+    expect(result!.food.measures[0].gramsEquivalent).toBe(25)
+  })
+})
+
+describe('FoodLogRepository.update', () => {
+  const repo = new FoodLogRepository()
+
+  let userId: string
+  let foodId: string
+  let logId: string
+
+  beforeAll(async () => {
+    const user = await prisma.user.create({
+      data: {
+        name: 'Test User Update',
+        email: `test-foodlog-update-${Date.now()}@example.com`,
+      },
+    })
+    userId = user.id
+
+    const food = await prisma.food.create({
+      data: {
+        name: 'Feijão carioca cozido',
+        caloriesPer100g: 77,
+        proteinPer100g: 4.8,
+        fatPer100g: 0.5,
+        carbPer100g: 13.6,
+      },
+    })
+    foodId = food.id
+
+    const log = await prisma.foodLog.create({
+      data: {
+        userId,
+        foodId,
+        logDate: new Date('2026-05-25T00:00:00.000Z'),
+        mealType: 'dinner',
+        quantity: 100,
+        unit: 'g',
+        foodMeasureId: null,
+        calories: 77,
+        proteinG: 4.8,
+        fatG: 0.5,
+        carbG: 13.6,
+      },
+    })
+    logId = log.id
+  })
+
+  afterAll(async () => {
+    if (!userId) return
+    await prisma.foodLog.deleteMany({ where: { userId } })
+    await prisma.food.delete({ where: { id: foodId } })
+    await prisma.user.delete({ where: { id: userId } })
+  })
+
+  it('persiste a nova quantity, unit e macros recalculados', async () => {
+    await repo.update(logId, {
+      quantity: 200,
+      unit: 'g',
+      foodMeasureId: null,
+      calories: 154,
+      proteinG: 9.6,
+      fatG: 1.0,
+      carbG: 27.2,
+    })
+
+    const persisted = await prisma.foodLog.findUnique({ where: { id: logId } })
+
+    expect(persisted).not.toBeNull()
+    expect(persisted!.quantity).toBe(200)
+    expect(persisted!.unit).toBe('g')
+    expect(persisted!.calories).toBe(154)
+    expect(persisted!.proteinG).toBe(9.6)
+    expect(persisted!.fatG).toBe(1.0)
+    expect(persisted!.carbG).toBe(27.2)
+  })
+
+  it('retorna FoodLogWithFood com food: { id, name }', async () => {
+    const result: FoodLogWithFood = await repo.update(logId, {
+      quantity: 150,
+      unit: 'g',
+      foodMeasureId: null,
+      calories: 115.5,
+      proteinG: 7.2,
+      fatG: 0.75,
+      carbG: 20.4,
+    })
+
+    expect(result.id).toBe(logId)
+    expect(result.quantity).toBe(150)
+    expect(result.calories).toBe(115.5)
+    expect(result.food).toMatchObject({ id: foodId, name: 'Feijão carioca cozido' })
+    expect(Object.keys(result.food)).toEqual(expect.arrayContaining(['id', 'name']))
+    expect(Object.keys(result.food)).not.toContain('caloriesPer100g')
   })
 })

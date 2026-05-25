@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { FoodLogService } from './foodLog.service'
-import type { FoodLogRepository, FoodLogWithFood } from '../repositories/foodLog.repository'
+import type { FoodLogRepository, FoodLogWithFood, FoodLogWithFoodAndMeasures } from '../repositories/foodLog.repository'
 import type { FoodRepository, FoodWithMeasures } from '../repositories/food.repository'
-import { NotFoundError } from '../lib/errors'
+import { NotFoundError, ForbiddenError } from '../lib/errors'
 
 const makeFoodLog = (overrides: Partial<FoodLogWithFood> = {}): FoodLogWithFood => ({
   id: '550e8400-e29b-41d4-a716-446655440010',
@@ -443,5 +443,233 @@ describe('FoodLogService.createLog', () => {
         unit: 'g',
       }),
     ).rejects.toThrow('DB insert error')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// FoodLogService.updateLog
+// ---------------------------------------------------------------------------
+
+const makeFoodLogWithMeasures = (overrides: Partial<FoodLogWithFoodAndMeasures> = {}): FoodLogWithFoodAndMeasures => ({
+  id: LOG_ID,
+  userId: USER_ID,
+  foodId: FOOD_ID,
+  logDate: new Date('2026-05-25T00:00:00.000Z'),
+  mealType: 'breakfast',
+  quantity: 100,
+  unit: 'g',
+  foodMeasureId: null,
+  calories: 89,
+  proteinG: 1.1,
+  fatG: 0.3,
+  carbG: 22.8,
+  createdAt: new Date('2026-05-25T08:00:00Z'),
+  food: {
+    id: FOOD_ID,
+    name: 'Banana prata',
+    caloriesPer100g: 89,
+    proteinPer100g: 1.1,
+    fatPer100g: 0.3,
+    carbPer100g: 22.8,
+    measures: [],
+  },
+  ...overrides,
+})
+
+describe('FoodLogService.updateLog', () => {
+  let service: FoodLogService
+  let mockFoodLogRepo: {
+    findByUserAndDate: ReturnType<typeof vi.fn>
+    create: ReturnType<typeof vi.fn>
+    findById: ReturnType<typeof vi.fn>
+    update: ReturnType<typeof vi.fn>
+  }
+  let mockFoodRepo: { findById: ReturnType<typeof vi.fn> }
+
+  beforeEach(() => {
+    mockFoodLogRepo = {
+      findByUserAndDate: vi.fn(),
+      create: vi.fn(),
+      findById: vi.fn(),
+      update: vi.fn(),
+    }
+    mockFoodRepo = { findById: vi.fn() }
+    service = new FoodLogService(
+      mockFoodLogRepo as unknown as FoodLogRepository,
+      mockFoodRepo as unknown as FoodRepository,
+    )
+  })
+
+  it('lança NotFoundError "Food log not found" quando findById retorna null', async () => {
+    mockFoodLogRepo.findById.mockResolvedValue(null)
+
+    await expect(
+      service.updateLog(USER_ID, LOG_ID, { quantity: 150, unit: 'g' }),
+    ).rejects.toThrow(NotFoundError)
+
+    await expect(
+      service.updateLog(USER_ID, LOG_ID, { quantity: 150, unit: 'g' }),
+    ).rejects.toThrow('Food log not found')
+  })
+
+  it('não chama update quando findById retorna null', async () => {
+    mockFoodLogRepo.findById.mockResolvedValue(null)
+
+    await expect(
+      service.updateLog(USER_ID, LOG_ID, { quantity: 150, unit: 'g' }),
+    ).rejects.toThrow(NotFoundError)
+
+    expect(mockFoodLogRepo.update).not.toHaveBeenCalled()
+  })
+
+  it('lança ForbiddenError "Access denied" quando log.userId !== userId', async () => {
+    const log = makeFoodLogWithMeasures({ userId: 'other-user-id' })
+    mockFoodLogRepo.findById.mockResolvedValue(log)
+
+    await expect(
+      service.updateLog(USER_ID, LOG_ID, { quantity: 150, unit: 'g' }),
+    ).rejects.toThrow(ForbiddenError)
+
+    await expect(
+      service.updateLog(USER_ID, LOG_ID, { quantity: 150, unit: 'g' }),
+    ).rejects.toThrow('Access denied')
+  })
+
+  it('não chama update quando log.userId !== userId', async () => {
+    const log = makeFoodLogWithMeasures({ userId: 'other-user-id' })
+    mockFoodLogRepo.findById.mockResolvedValue(log)
+
+    await expect(
+      service.updateLog(USER_ID, LOG_ID, { quantity: 150, unit: 'g' }),
+    ).rejects.toThrow(ForbiddenError)
+
+    expect(mockFoodLogRepo.update).not.toHaveBeenCalled()
+  })
+
+  it('lança NotFoundError "Food measure not found" quando unit="measure" e medida não existe nas measures do food', async () => {
+    const log = makeFoodLogWithMeasures({ food: { ...makeFoodLogWithMeasures().food, measures: [] } })
+    mockFoodLogRepo.findById.mockResolvedValue(log)
+
+    await expect(
+      service.updateLog(USER_ID, LOG_ID, { quantity: 2, unit: 'measure', foodMeasureId: MEASURE_ID }),
+    ).rejects.toThrow(NotFoundError)
+
+    await expect(
+      service.updateLog(USER_ID, LOG_ID, { quantity: 2, unit: 'measure', foodMeasureId: MEASURE_ID }),
+    ).rejects.toThrow('Food measure not found')
+
+    expect(mockFoodLogRepo.update).not.toHaveBeenCalled()
+  })
+
+  it('recalcula macros corretamente e chama update com os valores calculados (unit="g")', async () => {
+    const log = makeFoodLogWithMeasures()
+    mockFoodLogRepo.findById.mockResolvedValue(log)
+    const updatedLog = makeCreatedLog({
+      quantity: 200,
+      unit: 'g',
+      // 200g of banana: calories = 89 * 200 / 100 = 178
+      calories: 178,
+      proteinG: 2.2,
+      fatG: 0.6,
+      carbG: 45.6,
+    })
+    mockFoodLogRepo.update.mockResolvedValue(updatedLog)
+
+    await service.updateLog(USER_ID, LOG_ID, { quantity: 200, unit: 'g' })
+
+    expect(mockFoodLogRepo.update).toHaveBeenCalledOnce()
+    expect(mockFoodLogRepo.update).toHaveBeenCalledWith(
+      LOG_ID,
+      expect.objectContaining({
+        quantity: 200,
+        unit: 'g',
+        foodMeasureId: null,
+        calories: 178,
+        proteinG: 2.2,
+        fatG: 0.6,
+        carbG: 45.6,
+      }),
+    )
+  })
+
+  it('recalcula macros com medida corretamente (unit="measure")', async () => {
+    const logWithMeasure = makeFoodLogWithMeasures({
+      food: {
+        id: FOOD_ID,
+        name: 'Banana prata',
+        caloriesPer100g: 89,
+        proteinPer100g: 1.1,
+        fatPer100g: 0.3,
+        carbPer100g: 22.8,
+        measures: [{ id: MEASURE_ID, gramsEquivalent: 120 }],
+      },
+    })
+    mockFoodLogRepo.findById.mockResolvedValue(logWithMeasure)
+    // 2 measures of 120g each = 240g: calories = 89 * 240 / 100 = 213.6
+    const updatedLog = makeCreatedLog({
+      quantity: 2,
+      unit: 'measure',
+      foodMeasureId: MEASURE_ID,
+      calories: 213.6,
+      proteinG: 2.64,
+      fatG: 0.72,
+      carbG: 54.72,
+    })
+    mockFoodLogRepo.update.mockResolvedValue(updatedLog)
+
+    await service.updateLog(USER_ID, LOG_ID, { quantity: 2, unit: 'measure', foodMeasureId: MEASURE_ID })
+
+    expect(mockFoodLogRepo.update).toHaveBeenCalledOnce()
+    expect(mockFoodLogRepo.update).toHaveBeenCalledWith(
+      LOG_ID,
+      expect.objectContaining({
+        quantity: 2,
+        unit: 'measure',
+        foodMeasureId: MEASURE_ID,
+        calories: 213.6,
+      }),
+    )
+  })
+
+  it('retorna shape correto com 9 campos: id, food: {id, name}, mealType, quantity, unit, calories, proteinG, fatG, carbG', async () => {
+    const log = makeFoodLogWithMeasures()
+    mockFoodLogRepo.findById.mockResolvedValue(log)
+    const updatedLog = makeCreatedLog({
+      quantity: 150,
+      unit: 'g',
+      calories: 133.5,
+      proteinG: 1.65,
+      fatG: 0.45,
+      carbG: 34.2,
+    })
+    mockFoodLogRepo.update.mockResolvedValue(updatedLog)
+
+    const result = await service.updateLog(USER_ID, LOG_ID, { quantity: 150, unit: 'g' })
+
+    expect(Object.keys(result)).toHaveLength(9)
+    expect(result).toMatchObject({
+      id: LOG_ID,
+      food: { id: FOOD_ID, name: 'Banana prata' },
+      mealType: 'breakfast',
+      quantity: 150,
+      unit: 'g',
+      calories: 133.5,
+      proteinG: 1.65,
+      fatG: 0.45,
+      carbG: 34.2,
+    })
+  })
+
+  it('foodMeasureId é null quando unit="g"', async () => {
+    const log = makeFoodLogWithMeasures()
+    mockFoodLogRepo.findById.mockResolvedValue(log)
+    mockFoodLogRepo.update.mockResolvedValue(makeCreatedLog({ quantity: 150, unit: 'g' }))
+
+    await service.updateLog(USER_ID, LOG_ID, { quantity: 150, unit: 'g' })
+
+    expect(mockFoodLogRepo.update).toHaveBeenCalledWith(
+      LOG_ID,
+      expect.objectContaining({ foodMeasureId: null }),
+    )
   })
 })
