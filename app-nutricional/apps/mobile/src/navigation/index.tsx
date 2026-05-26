@@ -12,6 +12,7 @@ import { DailyLogScreen } from '../screens/home/DailyLogScreen'
 import { FoodSearchScreen } from '../screens/home/FoodSearchScreen'
 import { FoodDetailScreen } from '../screens/home/FoodDetailScreen'
 import { ProfileScreen } from '../screens/profile/ProfileScreen'
+import { EditProfileScreen } from '../screens/profile/EditProfileScreen'
 import { colors } from '../theme/colors'
 import { typography } from '../theme/typography'
 import type { MealType, FoodDto } from '@nutri-ia/shared'
@@ -27,6 +28,7 @@ export type AppStackParamList = {
   MainTabs: undefined
   FoodSearch: { mealType: MealType; date: string }
   FoodDetail: { food: FoodDto; mealType: MealType; date: string }
+  EditProfile: undefined
 }
 
 export type AppTabParamList = {
@@ -101,6 +103,17 @@ function AppNavigator() {
               presentation: 'modal',
               headerShown: true,
               title: 'Adicionar alimento',
+              headerTintColor: colors.accent,
+              headerStyle: { backgroundColor: colors.paper },
+            }}
+          />
+          <AppStack.Screen
+            name="EditProfile"
+            component={EditProfileScreen}
+            options={{
+              presentation: 'modal',
+              headerShown: true,
+              title: 'Editar perfil',
               headerTintColor: colors.accent,
               headerStyle: { backgroundColor: colors.paper },
             }}

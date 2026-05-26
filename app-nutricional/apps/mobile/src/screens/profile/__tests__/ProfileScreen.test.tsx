@@ -5,6 +5,9 @@ import { ProfileScreen } from '../ProfileScreen'
 
 jest.mock('../../../hooks/useCurrentUser')
 jest.mock('../../../store/auth.store')
+jest.mock('@react-navigation/native', () => ({
+  useNavigation: jest.fn(() => ({ navigate: jest.fn() })),
+}))
 
 const mockUseCurrentUser = jest.requireMock('../../../hooks/useCurrentUser') as {
   useCurrentUser: jest.Mock

@@ -9,8 +9,11 @@ import {
   Alert,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useNavigation } from '@react-navigation/native'
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { useAuthStore } from '../../store/auth.store'
+import type { AppStackParamList } from '../../navigation'
 import { colors } from '../../theme/colors'
 import { typography } from '../../theme/typography'
 
@@ -24,6 +27,7 @@ function formatBodyFat(value: number | null): string {
 }
 
 export function ProfileScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
   const { data, isLoading, isError, refetch } = useCurrentUser()
   const logout = useAuthStore((s) => s.logout)
 
@@ -86,13 +90,12 @@ export function ProfileScreen() {
         )}
 
         <View style={styles.actions}>
-          {/* TODO: habilitar quando EditProfileScreen for implementado (NUT-147) */}
           <TouchableOpacity
-            style={[styles.button, styles.buttonDisabled]}
-            disabled
+            style={[styles.button, styles.buttonPrimary]}
+            onPress={() => navigation.navigate('EditProfile')}
             testID="edit-profile-btn"
           >
-            <Text style={[styles.buttonText, styles.buttonTextDisabled]}>Editar</Text>
+            <Text style={[styles.buttonText, styles.buttonTextPrimary]}>Editar</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -210,8 +213,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
-  buttonDisabled: {
-    backgroundColor: colors.gray1,
+  buttonPrimary: {
+    backgroundColor: colors.accent,
   },
   buttonDestructive: {
     backgroundColor: colors.accentLight,
@@ -221,8 +224,8 @@ const styles = StyleSheet.create({
   buttonText: {
     ...typography.button,
   },
-  buttonTextDisabled: {
-    color: colors.ink3,
+  buttonTextPrimary: {
+    color: colors.white,
   },
   buttonTextDestructive: {
     color: colors.accent,

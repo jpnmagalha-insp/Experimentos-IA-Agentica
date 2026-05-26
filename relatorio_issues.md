@@ -415,7 +415,7 @@ curl -X POST http://localhost:3000/v1/auth/register \
 | NUT-144 | [backend] GET /users/me com perfil e meta atual                                    | Done    |
 | NUT-145 | [backend] PUT /users/me/profile com recálculo de TMB e metas                       | Done    |
 | NUT-146 | [frontend] ProfileScreen com idade calculada e modo visualização                   | Done    |
-| NUT-147 | [frontend] EditProfileScreen com preview de nova TMB                               | Backlog |
+| NUT-147 | [frontend] EditProfileScreen com preview de nova TMB                               | Done    |
 | NUT-148 | [test-e2e] Perfil — editar peso recalcula meta e data de nascimento no modo edição | Backlog |
 
 #### NUT-146 — ProfileScreen `[Done - 2026-05-26]`
@@ -437,6 +437,30 @@ curl -X POST http://localhost:3000/v1/auth/register \
 | `apps/mobile/package.json` | +devDeps: `jest-expo@51`, `@testing-library/react-native@^12`, `react-test-renderer@18.2.0` |
 
 > **Nota técnica:** `age` já vem calculado pelo backend (GET /users/me usa `calcAge` server-side — DR-03 garantido na API). Botão Editar desabilitado com TODO explícito até NUT-147.
+
+---
+
+#### NUT-147 — EditProfileScreen `[Done - 2026-05-26]`
+
+**Arquivos criados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/mobile/src/lib/tmb.ts` | Extrai `calcAge` e `calcTmb` do OnboardingScreen para lib reutilizável (DR-01, DR-02) |
+| `apps/mobile/src/hooks/useUpdateProfile.ts` | TanStack Mutation: chama `PUT /users/me/profile`, invalida query `['user', 'me']` no `onSuccess` |
+| `apps/mobile/src/screens/profile/EditProfileScreen.tsx` | Formulário pré-preenchido via `useCurrentUser()`; preview TMB em tempo real; validação via `updateProfileSchema.safeParse()` (DR-10); salva e navega de volta |
+| `apps/mobile/src/screens/profile/__tests__/EditProfileScreen.test.tsx` | 13 testes RNTL: pré-preenchimento, data editável (R3.3), preview TMB em tempo real, validação DR-10, submit correto, navegação pós-sucesso, Alert de erro |
+
+**Arquivos modificados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/mobile/src/navigation/index.tsx` | Adiciona `EditProfile: undefined` ao `AppStackParamList`; registra `EditProfileScreen` como modal (mesmo padrão de `FoodSearch`) |
+| `apps/mobile/src/screens/profile/ProfileScreen.tsx` | Habilita botão "Editar": remove `disabled`, adiciona `useNavigation`, navega para `EditProfile` |
+| `apps/mobile/src/screens/auth/OnboardingScreen.tsx` | Remove funções locais `calcAge`/`calcTmb`; importa da lib `../../lib/tmb` |
+| `apps/mobile/src/screens/profile/__tests__/ProfileScreen.test.tsx` | Adiciona mock de `@react-navigation/native` para `useNavigation` |
+
+> **Nota técnica:** `calcTmb` era duplicada em `OnboardingScreen`. Extraída para `lib/tmb.ts` e reutilizada em `EditProfileScreen`. Preview de TMB calculado localmente com DR-01 (Mifflin-St Jeor) ou DR-02 (Katch-McArdle quando `bodyFatPercent` presente), sem chamar a API.
 
 ---
 
