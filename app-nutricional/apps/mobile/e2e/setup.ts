@@ -80,6 +80,21 @@ export async function seedLog(
   return { id: res.data.id }
 }
 
+export async function updateProfile(
+  accessToken: string,
+  payload: {
+    birthDate: string
+    sex: 'male' | 'female'
+    heightCm: number
+    weightKg: number
+    bodyFatPercent?: number | null
+  },
+): Promise<void> {
+  await axios.put(`${BASE}/users/me/profile`, payload, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+}
+
 export async function clearLogs(accessToken: string, date: string): Promise<void> {
   const res = await axios.get<{ meals: Record<string, Array<{ id: string }>> }>(
     `${BASE}/logs?date=${date}`,
