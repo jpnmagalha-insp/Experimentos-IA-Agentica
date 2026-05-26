@@ -139,6 +139,27 @@ export const dailyLogsResponseSchema = z.object({
   totals: macroResultSchema,
 })
 
+// --- User Profile Response ---
+
+export const userProfileResponseSchema = z.object({
+  birthDate: z.string().date(),
+  sex: sexSchema,
+  heightCm: z.number(),
+  weightKg: z.number(),
+  bodyFatPercent: z.number().nullable(),
+  tmb: z.number(),
+  age: z.number().int(),
+})
+
+export const getMeResponseSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  email: z.string().email(),
+  emailVerified: z.boolean(),
+  profile: userProfileResponseSchema.nullable(),
+  currentGoal: macroResultSchema.nullable(),
+})
+
 // --- Types ---
 
 export type LoginDto = z.infer<typeof loginSchema>
@@ -159,3 +180,5 @@ export type FoodIdParamDto = z.infer<typeof foodIdParamSchema>
 export type DailyLogsQueryDto = z.infer<typeof dailyLogsQuerySchema>
 export type FoodLogItemDto = z.infer<typeof foodLogItemSchema>
 export type DailyLogsResponseDto = z.infer<typeof dailyLogsResponseSchema>
+export type UserProfileResponseDto = z.infer<typeof userProfileResponseSchema>
+export type GetMeResponseDto = z.infer<typeof getMeResponseSchema>
