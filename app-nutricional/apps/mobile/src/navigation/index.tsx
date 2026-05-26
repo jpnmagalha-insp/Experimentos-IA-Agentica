@@ -11,6 +11,8 @@ import { OnboardingScreen } from '../screens/auth/OnboardingScreen'
 import { DailyLogScreen } from '../screens/home/DailyLogScreen'
 import { FoodSearchScreen } from '../screens/home/FoodSearchScreen'
 import { FoodDetailScreen } from '../screens/home/FoodDetailScreen'
+import { colors } from '../theme/colors'
+import { typography } from '../theme/typography'
 import type { MealType, FoodDto } from '@nutri-ia/shared'
 
 export type AuthStackParamList = {
@@ -48,23 +50,30 @@ function AuthNavigator() {
 
 function ReportPlaceholder() {
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{ fontSize: 16, color: '#888' }}>Relatório — Em breve</Text>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.paper }}>
+      <Text style={{ ...typography.body, color: colors.ink3 }}>Relatório — Em breve</Text>
     </View>
   )
 }
 
 function ProfilePlaceholder() {
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{ fontSize: 16, color: '#888' }}>Perfil — Em breve</Text>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.paper }}>
+      <Text style={{ ...typography.body, color: colors.ink3 }}>Perfil — Em breve</Text>
     </View>
   )
 }
 
 function TabNavigator() {
   return (
-    <AppTab.Navigator screenOptions={{ headerShown: false }}>
+    <AppTab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.ink3,
+        tabBarStyle: { backgroundColor: colors.white, borderTopColor: colors.gray1 },
+      }}
+    >
       <AppTab.Screen name="Home" component={DailyLogScreen} options={{ title: 'Início' }} />
       <AppTab.Screen name="Report" component={ReportPlaceholder} options={{ title: 'Relatório' }} />
       <AppTab.Screen name="Profile" component={ProfilePlaceholder} options={{ title: 'Perfil' }} />
@@ -84,12 +93,24 @@ function AppNavigator() {
           <AppStack.Screen
             name="FoodSearch"
             component={FoodSearchScreen}
-            options={{ presentation: 'modal', headerShown: true, title: 'Buscar alimento' }}
+            options={{
+              presentation: 'modal',
+              headerShown: true,
+              title: 'Buscar alimento',
+              headerTintColor: colors.accent,
+              headerStyle: { backgroundColor: colors.paper },
+            }}
           />
           <AppStack.Screen
             name="FoodDetail"
             component={FoodDetailScreen}
-            options={{ presentation: 'modal', headerShown: true, title: 'Adicionar alimento' }}
+            options={{
+              presentation: 'modal',
+              headerShown: true,
+              title: 'Adicionar alimento',
+              headerTintColor: colors.accent,
+              headerStyle: { backgroundColor: colors.paper },
+            }}
           />
         </>
       )}
@@ -102,8 +123,8 @@ export function RootNavigator() {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#4CAF50" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.paper }}>
+        <ActivityIndicator size="large" color={colors.accent} />
       </View>
     )
   }

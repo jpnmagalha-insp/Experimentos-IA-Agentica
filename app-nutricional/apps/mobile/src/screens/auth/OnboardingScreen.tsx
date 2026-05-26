@@ -12,6 +12,8 @@ import {
 } from 'react-native'
 import { api } from '../../lib/api'
 import { useAuthStore } from '../../store/auth.store'
+import { colors } from '../../theme/colors'
+import { typography } from '../../theme/typography'
 
 type Step = 'birthDate' | 'sex' | 'height' | 'weight' | 'bodyFat' | 'confirm'
 const STEPS: Step[] = ['birthDate', 'sex', 'height', 'weight', 'bodyFat', 'confirm']
@@ -147,6 +149,7 @@ export function OnboardingScreen() {
           <TextInput
             style={styles.input}
             placeholder="AAAA-MM-DD"
+            placeholderTextColor={colors.ink3}
             value={birthDate}
             onChangeText={setBirthDate}
             keyboardType={Platform.OS === 'ios' ? 'numbers-and-punctuation' : 'default'}
@@ -188,6 +191,7 @@ export function OnboardingScreen() {
             <TextInput
               style={[styles.input, styles.inputFlex]}
               placeholder="Ex: 175"
+              placeholderTextColor={colors.ink3}
               value={heightCm}
               onChangeText={setHeightCm}
               keyboardType="numeric"
@@ -205,6 +209,7 @@ export function OnboardingScreen() {
             <TextInput
               style={[styles.input, styles.inputFlex]}
               placeholder="Ex: 75.5"
+              placeholderTextColor={colors.ink3}
               value={weightKg}
               onChangeText={setWeightKg}
               keyboardType="numeric"
@@ -223,6 +228,7 @@ export function OnboardingScreen() {
             <TextInput
               style={[styles.input, styles.inputFlex]}
               placeholder="Ex: 18"
+              placeholderTextColor={colors.ink3}
               value={bodyFat}
               onChangeText={setBodyFat}
               keyboardType="numeric"
@@ -276,7 +282,7 @@ export function OnboardingScreen() {
             disabled={loading}
             accessibilityLabel="Confirmar e continuar"
           >
-            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.continueText}>Confirmar</Text>}
+            {loading ? <ActivityIndicator color={colors.white} /> : <Text style={styles.continueText}>Confirmar</Text>}
           </TouchableOpacity>
         )}
       </View>
@@ -285,63 +291,73 @@ export function OnboardingScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, backgroundColor: '#fff', paddingHorizontal: 24, paddingTop: 64, paddingBottom: 32 },
+  container: {
+    flexGrow: 1,
+    backgroundColor: colors.paper,
+    paddingHorizontal: 24,
+    paddingTop: 64,
+    paddingBottom: 32,
+  },
   progressRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 40 },
-  progressDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#ddd' },
-  progressDotActive: { backgroundColor: '#4CAF50' },
+  progressDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.gray2 },
+  progressDotActive: { backgroundColor: colors.accent },
   stepContainer: { flex: 1, marginBottom: 32 },
-  stepTitle: { fontSize: 24, fontWeight: '700', color: '#333', marginBottom: 24 },
-  optional: { fontSize: 14, color: '#999', marginBottom: 12 },
+  stepTitle: { ...typography.displayS, color: colors.ink, marginBottom: 24 },
+  optional: { ...typography.bodyS, color: colors.ink3, marginBottom: 12 },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.gray2,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 18,
+    color: colors.ink,
     marginBottom: 4,
+    backgroundColor: colors.white,
   },
   inputFlex: { flex: 1 },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  unit: { fontSize: 18, color: '#666', width: 32 },
+  unit: { fontSize: 18, color: colors.ink2, width: 32 },
   toggleRow: { flexDirection: 'row', gap: 12 },
   toggleButton: {
     flex: 1,
     borderWidth: 2,
-    borderColor: '#ddd',
+    borderColor: colors.gray2,
     borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
+    backgroundColor: colors.white,
   },
-  toggleActive: { borderColor: '#4CAF50', backgroundColor: '#E8F5E9' },
-  toggleText: { fontSize: 16, color: '#666' },
-  toggleTextActive: { color: '#4CAF50', fontWeight: '600' },
+  toggleActive: { borderColor: colors.accent, backgroundColor: colors.accentLight },
+  toggleText: { ...typography.bodyL, color: colors.ink2 },
+  toggleTextActive: { color: colors.accent, fontWeight: '600' },
   tmbCard: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: colors.accentLight,
     borderRadius: 12,
     padding: 24,
     alignItems: 'center',
     marginBottom: 16,
   },
-  tmbLabel: { fontSize: 14, color: '#666', marginBottom: 8 },
-  tmbValue: { fontSize: 36, fontWeight: '700', color: '#4CAF50', marginBottom: 8 },
-  tmbDescription: { fontSize: 14, color: '#666', textAlign: 'center' },
-  summary: { fontSize: 14, color: '#999', textAlign: 'center' },
-  error: { color: '#E53935', fontSize: 13, marginBottom: 12, textAlign: 'center' },
+  tmbLabel: { ...typography.bodyS, color: colors.ink2, marginBottom: 8 },
+  tmbValue: { ...typography.heroNumber, color: colors.accent, marginBottom: 8 },
+  tmbDescription: { ...typography.bodyS, color: colors.ink2, textAlign: 'center' },
+  summary: { ...typography.bodyS, color: colors.ink3, textAlign: 'center' },
+  error: { ...typography.bodyS, color: colors.error, marginBottom: 12, textAlign: 'center' },
   navRow: { flexDirection: 'row', gap: 12, marginTop: 'auto' },
   backButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.gray2,
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
     minHeight: 48,
+    backgroundColor: colors.white,
   },
-  backText: { fontSize: 16, color: '#666' },
+  backText: { ...typography.button, color: colors.ink2 },
   continueButton: {
     flex: 2,
-    backgroundColor: '#4CAF50',
+    backgroundColor: colors.accent,
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
@@ -349,5 +365,5 @@ const styles = StyleSheet.create({
   },
   fullWidth: { flex: 1 },
   buttonDisabled: { opacity: 0.6 },
-  continueText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  continueText: { ...typography.button, color: colors.white },
 })

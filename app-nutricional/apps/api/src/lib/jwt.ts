@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
 
-const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET ?? process.env.JWT_SECRET
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET
+const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!
+const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!
 
 function b64url(data: string): string {
   return Buffer.from(data).toString('base64url')

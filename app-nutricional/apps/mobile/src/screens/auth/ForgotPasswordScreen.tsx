@@ -12,6 +12,8 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { z } from 'zod'
 import { api } from '../../lib/api'
+import { colors } from '../../theme/colors'
+import { typography } from '../../theme/typography'
 import type { AuthStackParamList } from '../../navigation'
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'ForgotPassword'>
@@ -76,6 +78,7 @@ export function ForgotPasswordScreen({ navigation }: Props) {
         <TextInput
           style={[styles.input, emailError ? styles.inputError : null]}
           placeholder="E-mail"
+          placeholderTextColor={colors.ink3}
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
@@ -91,7 +94,7 @@ export function ForgotPasswordScreen({ navigation }: Props) {
           accessibilityLabel="Botão enviar instruções"
         >
           {loading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.white} />
           ) : (
             <Text style={styles.buttonText}>Enviar instruções</Text>
           )}
@@ -102,25 +105,27 @@ export function ForgotPasswordScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: colors.paper },
   inner: { flex: 1, justifyContent: 'center', paddingHorizontal: 24 },
   backButton: { position: 'absolute', top: 56, left: 24 },
-  title: { fontSize: 26, fontWeight: '700', color: '#333', marginBottom: 12 },
-  description: { fontSize: 15, color: '#666', marginBottom: 24, lineHeight: 22 },
-  message: { fontSize: 15, color: '#666', marginBottom: 32, lineHeight: 22 },
+  title: { ...typography.displayM, color: colors.ink, marginBottom: 12 },
+  description: { ...typography.bodyS, color: colors.ink2, marginBottom: 24, lineHeight: 22 },
+  message: { ...typography.bodyS, color: colors.ink2, marginBottom: 32, lineHeight: 22 },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.gray2,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    fontSize: 16,
+    ...typography.inputText,
+    color: colors.ink,
     marginBottom: 4,
+    backgroundColor: colors.white,
   },
-  inputError: { borderColor: '#E53935' },
-  error: { color: '#E53935', fontSize: 12, marginBottom: 8 },
+  inputError: { borderColor: colors.error },
+  error: { ...typography.caption, color: colors.error, marginBottom: 8 },
   button: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: colors.accent,
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
@@ -128,6 +133,6 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   buttonDisabled: { opacity: 0.6 },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  link: { color: '#4CAF50', fontSize: 15 },
+  buttonText: { ...typography.button, color: colors.white },
+  link: { ...typography.link, color: colors.accent },
 })

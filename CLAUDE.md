@@ -139,78 +139,57 @@ Railway roda `prisma migrate deploy` automaticamente antes de subir o servidor.
 
 ## Fluxo de trabalho — Issue a Issue
 
-Siga **sempre** este fluxo ao trabalhar em qualquer issue. Não pule etapas nem agrupe fases sem aprovação explícita.
-
 ---
 
-### Fase 1 — Planejamento
+### Fase 1 — Planejamento + Aprovação (1 mensagem)
 
-1. Leia a issue no Linear, entenda o contexto e critérios de aceite, e **mova a issue para "In Progress"** via MCP do Linear.
-2. Identifique os arquivos afetados, riscos e a abordagem de implementação.
-3. **Apresente o plano detalhado e aguarde aprovação antes de codar.**
-
-> ⚠️ Não avance para a Fase 2 sem confirmação explícita do usuário.
+1. Leia a issue no Linear e mova para "In Progress".
+2. Produza **em uma única mensagem**:
+   - Arquivos afetados
+   - Abordagem de implementação (3-5 linhas)
+   - Riscos identificados
+3. Aguarde aprovação. ⚠️ Não avance sem confirmação.
 
 ---
 
 ### Fase 2 — Implementação
 
-4. Implemente apenas as **interfaces e assinaturas** dos módulos afetados, sem lógica de negócio.
+4. Implemente interfaces + lógica de negócio diretamente.
+   - Não separe em duas etapas — interfaces sem lógica geram contexto inútil.
 
-5. Acione o **sub-agente de testes** (`.claude/agents/test-writer.md`) passando o plano aprovado + as interfaces criadas como contexto. O sub-agente deve:
-   - Escrever testes **unitários e de integração** para cada comportamento descrito no plano
-   - Garantir que os testes **falhem** neste momento (red phase do TDD)
-   - Cobrir casos de sucesso, erro e edge cases relevantes
-   - **Não escrever testes E2E** — esses são issues separadas com escopo próprio (Detox)
+5. Escreva os testes **no mesmo passo** da implementação:
+   - Unitários e de integração por comportamento descrito no plano
+   - Casos de sucesso, erro e edge cases
+   - Sem E2E
 
-6. Implemente a lógica de negócio até todos os testes passarem (green phase).
-
-7. Rode os **quality gates** na ordem abaixo e corrija qualquer falha antes de continuar. **Se após 5 tentativas algum gate continuar falhando, pare e peça auxílio humano** — não tente corrigir indefinidamente.
+6. Rode os quality gates **silenciosamente** — reporte apenas falhas:
 
 ```bash
-npm run lint         # Lint em todos os workspaces
-npm run typecheck    # Type check em todos os workspaces
-npm test             # Testes unitários
+npm run lint && npm run typecheck && npm test
 ```
 
-8. Acione o **sub-agente code reviewer** (`.claude/agents/code-reviewer.md`) para revisar o diff completo das alterações. Corrija todos os pontos levantados antes de prosseguir. **Se após 5 ciclos de correção ainda houver bloqueantes, pare e peça auxílio humano** com um resumo do impasse.
+- Se após 3 tentativas ainda falhar: pare e peça ajuda humana.
+
+7. Auto-revisão inline: antes de fechar, releia o diff e corrija
+   problemas óbvios (complexidade, nomes, duplicação).
+   - Reserve o sub-agente `code-reviewer` apenas para issues
+     de alto risco (ex: auth, dados financeiros, APIs públicas).
 
 ---
 
-### Fase 3 — Fechamento
+### Fase 3 — Fechamento (1 mensagem)
 
-9. Se a issue envolver passos que não podem ser automatizados (ex: provisionar serviço externo, rodar migration com banco ativo), documente-os em uma seção **"Passos Manuais"** no resumo.
-10. Produza um **resumo do que foi feito**: o que mudou, por quê, e qualquer decisão técnica relevante.
-11. Atualize a documentação afetada: `docs/`, comentários de código, ADRs se aplicável.
-12. **Verifique os critérios de aceite** da issue no Linear um a um. Confirme explicitamente quais foram atendidos. Se algum não foi coberto, volte para a Fase 2 antes de prosseguir.
-13. **Apresente o resumo e aguarde aprovação para commitar.**
+8. Produza **em uma única mensagem**:
+   - Checklist dos critérios de aceite (✅ / ❌)
+   - Decisões técnicas relevantes (só o não-óbvio)
+   - Passos manuais, se houver
 
-> ⚠️ Não commite sem confirmação explícita do usuário.
+9. Aguarde aprovação para commitar. ⚠️
 
-14. Atualize o arquivo `relatorio_issues.md` com o que foi feito na issue, seguindo exatamente o padrão já estabelecido no documento:
-
-- Marque a issue como `` `[Done]` `` na lista de issues do milestone
-- Crie uma subseção `#### NUT-XXX — <título> \`[Done - YYYY-MM-DD]\`` com a data real de conclusão
-- Liste todos os arquivos criados ou modificados sob o título `**Arquivos criados:**`, em uma tabela com duas colunas alinhadas: `Arquivo` e `Descrição`
-- Se houver passos que o usuário precisa executar manualmente, adicione um blockquote `> **Passos Manuais:** ...` logo após a tabela
-- Adicione `---` ao final da seção do milestone se for o último item do bloco
-
-15. Faça o commit seguindo o padrão:
-
-```
-<tipo>(<escopo>): <descrição no imperativo>
-
-- detalhe relevante 1
-- detalhe relevante 2
-
-Refs: NUT-<número>
-```
-
-Tipos: `feat`, `fix`, `refactor`, `chore`, `test`, `docs`, `perf`, `style`.
-
-O número da issue é o ID do Linear no formato `NUT-XXX`. Exemplos de escopo: `api`, `mobile`, `shared`, `infra`, `auth`, `log`, `report`, `profile`.
-
-16. **Mova a issue para "Done"** no Linear via MCP.
+10. Execute em sequência (sem reportar cada passo):
+    - Atualiza `relatorio_issues.md`
+    - Faz o commit no padrão estabelecido
+    - Move issue para "Done" no Linear
 
 ---
 
