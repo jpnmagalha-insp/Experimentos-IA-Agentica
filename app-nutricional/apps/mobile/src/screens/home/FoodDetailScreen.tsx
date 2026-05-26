@@ -14,6 +14,8 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { AppStackParamList } from '../../navigation'
 import type { FoodDto, FoodMeasureDto, MealType } from '@nutri-ia/shared'
 import { useCreateLog } from '../../hooks/useCreateLog'
+import { colors } from '../../theme/colors'
+import { typography } from '../../theme/typography'
 
 type Props = NativeStackScreenProps<AppStackParamList, 'FoodDetail'>
 
@@ -135,7 +137,7 @@ export function FoodDetailScreen({ navigation, route }: Props) {
             onChangeText={setQuantity}
             keyboardType="numeric"
             placeholder={mode === 'g' ? 'Ex: 150' : 'Ex: 2'}
-            placeholderTextColor="#bbb"
+            placeholderTextColor={colors.ink3}
             testID="qty-input"
           />
         </View>
@@ -190,7 +192,7 @@ export function FoodDetailScreen({ navigation, route }: Props) {
           testID="submit-btn"
         >
           {isPending ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.white} />
           ) : (
             <Text style={styles.submitText}>Adicionar ao log</Text>
           )}
@@ -259,37 +261,36 @@ function ToggleButton({
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: '#f5f5f5' },
+  flex: { flex: 1, backgroundColor: colors.gray1 },
   content: { padding: 16, paddingBottom: 32 },
 
   headerCard: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
   },
-  foodName: { fontSize: 18, fontWeight: '700', color: '#111', marginBottom: 4 },
-  category: { fontSize: 13, color: '#aaa', marginBottom: 6 },
-  mealLabel: { fontSize: 13, color: '#888' },
-  mealLabelBold: { fontWeight: '600', color: '#555' },
+  foodName: { ...typography.headingM, color: colors.ink, marginBottom: 4 },
+  category: { ...typography.caption, color: colors.ink3, marginBottom: 6 },
+  mealLabel: { ...typography.caption, color: colors.ink3 },
+  mealLabelBold: { fontWeight: '600', color: colors.ink2 },
 
   tableCard: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
   },
   sectionTitle: {
-    fontSize: 11,
-    color: '#aaa',
+    ...typography.overline,
+    color: colors.ink3,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
     marginBottom: 12,
   },
   tableRow: { flexDirection: 'row', justifyContent: 'space-around' },
   macroCell: { alignItems: 'center' },
-  macroValue: { fontSize: 16, fontWeight: '700', color: '#333' },
-  macroLabel: { fontSize: 11, color: '#aaa', marginTop: 4 },
+  macroValue: { ...typography.headingS, color: colors.ink },
+  macroLabel: { ...typography.caption, color: colors.ink3, marginTop: 4 },
 
   toggleRow: {
     flexDirection: 'row',
@@ -301,34 +302,34 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
     borderWidth: 1.5,
-    borderColor: '#e0e0e0',
+    borderColor: colors.gray2,
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
   },
-  toggleBtnActive: { borderColor: '#4CAF50', backgroundColor: '#f0faf0' },
-  toggleBtnDisabled: { borderColor: '#f0f0f0', backgroundColor: '#fafafa' },
-  toggleText: { fontSize: 14, color: '#555', fontWeight: '500' },
-  toggleTextActive: { color: '#4CAF50', fontWeight: '600' },
-  toggleTextDisabled: { color: '#ccc' },
+  toggleBtnActive: { borderColor: colors.accent, backgroundColor: colors.accentLight },
+  toggleBtnDisabled: { borderColor: colors.gray1, backgroundColor: colors.paper },
+  toggleText: { ...typography.bodyS, color: colors.ink2 },
+  toggleTextActive: { color: colors.accent, fontWeight: '600' },
+  toggleTextDisabled: { color: colors.gray2 },
 
   inputCard: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
   },
   input: {
     borderWidth: 1.5,
-    borderColor: '#e8e8e8',
+    borderColor: colors.gray2,
     borderRadius: 8,
     paddingHorizontal: 14,
     paddingVertical: Platform.OS === 'ios' ? 12 : 10,
-    fontSize: 16,
-    color: '#111',
+    ...typography.inputText,
+    color: colors.ink,
   },
 
   measureCard: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -338,56 +339,56 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f5f5f5',
+    borderBottomColor: colors.paper,
     paddingHorizontal: 4,
     borderRadius: 6,
   },
   measureItemLast: { borderBottomWidth: 0 },
-  measureItemActive: { backgroundColor: '#f0faf0' },
+  measureItemActive: { backgroundColor: colors.accentLight },
   radio: {
     width: 18,
     height: 18,
     borderRadius: 9,
     borderWidth: 2,
-    borderColor: '#ccc',
+    borderColor: colors.gray2,
     marginRight: 12,
   },
-  radioActive: { borderColor: '#4CAF50', backgroundColor: '#4CAF50' },
-  measureText: { flex: 1, fontSize: 14, color: '#333' },
-  measureGrams: { fontSize: 13, color: '#999' },
+  radioActive: { borderColor: colors.accent, backgroundColor: colors.accent },
+  measureText: { flex: 1, ...typography.bodyS, color: colors.ink },
+  measureGrams: { ...typography.caption, color: colors.ink3 },
 
   previewCard: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: colors.accent,
     borderRadius: 12,
     padding: 20,
     alignItems: 'center',
     marginBottom: 12,
   },
-  previewKcal: { fontSize: 26, fontWeight: '700', color: '#fff' },
-  previewMacros: { fontSize: 14, color: 'rgba(255,255,255,0.85)', marginTop: 6 },
+  previewKcal: { ...typography.displayS, color: colors.white },
+  previewMacros: { ...typography.bodyS, color: 'rgba(255,255,255,0.85)', marginTop: 6 },
   previewPlaceholder: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 24,
     alignItems: 'center',
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#ebebeb',
+    borderColor: colors.gray1,
   },
-  previewHint: { fontSize: 13, color: '#bbb', textAlign: 'center' },
+  previewHint: { ...typography.caption, color: colors.ink3, textAlign: 'center' },
 
   footer: {
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: colors.gray1,
   },
   submitButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: colors.accent,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
   },
-  submitButtonDisabled: { backgroundColor: '#c8e6c9' },
-  submitText: { fontSize: 16, fontWeight: '700', color: '#fff' },
+  submitButtonDisabled: { backgroundColor: colors.accentLight },
+  submitText: { ...typography.button, color: colors.white },
 })
