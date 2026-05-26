@@ -412,11 +412,30 @@ curl -X POST http://localhost:3000/v1/auth/register \
 
 | Issue   | Título                                                                             | Status  |
 | ------- | ---------------------------------------------------------------------------------- | ------- |
-| NUT-144 | [backend] GET /users/me com perfil e meta atual                                    | Backlog |
-| NUT-145 | [backend] PUT /users/me/profile com recálculo de TMB e metas                       | Backlog |
+| NUT-144 | [backend] GET /users/me com perfil e meta atual                                    | Done    |
+| NUT-145 | [backend] PUT /users/me/profile com recálculo de TMB e metas                       | Done    |
 | NUT-146 | [frontend] ProfileScreen com idade calculada e modo visualização                   | Backlog |
 | NUT-147 | [frontend] EditProfileScreen com preview de nova TMB                               | Backlog |
 | NUT-148 | [test-e2e] Perfil — editar peso recalcula meta e data de nascimento no modo edição | Backlog |
+
+#### NUT-145 — PUT /users/me/profile `[Done - 2026-05-26]`
+
+**Arquivos criados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/api/src/repositories/profile.repository.ts` | Singleton `profileRepository` com `upsert(userId, data)` via `prisma.userProfile.upsert` — isola acesso ao Prisma no service (DA-05) |
+
+**Arquivos modificados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `packages/shared/src/index.ts` | `updateProfileSchema`: ranges DR-10 (altura 100-250, peso 30-300, gordura 3-70) + `.refine()` de idade (10-120 anos); `updateProfileResponseSchema` composto de `userProfileResponseSchema + macroResultSchema`; tipos `UpdateProfileDto`, `UpdateProfileResponseDto` |
+| `apps/api/src/services/user.service.ts` | `upsertProfile` passa a usar `profileRepository.upsert` em vez de `prisma.userProfile.upsert` diretamente; lógica de cálculo (calcAge → calculateTmb → calculateMacroGoal → goalRepository.create) preservada |
+| `apps/api/src/routes/users.routes.ts` | Remove `profileBody` inline; importa `updateProfileSchema` de `@nutri-ia/shared`; alinha com convenção de `logs.routes.ts` e `foods.routes.ts` |
+| `apps/api/src/routes/users.routes.test.ts` | +13 testes para `PUT /users/me/profile`: 200 Mifflin, 200 Katch-McArdle, 400 para cada range fora de DR-10, 400 idade < 10/> 120 anos, 400 data futura, 400 sex inválido, 401 sem token |
+
+> **Nota técnica:** Refine de idade duplica `calcAge` propositalmente — `@nutri-ia/shared` não pode depender de `apps/api`. `onboardingSchema` e `updateProfileSchema` coexistem com ranges propositalmente diferentes (onboarding permissivo, update estrito DR-10).
 
 ---
 

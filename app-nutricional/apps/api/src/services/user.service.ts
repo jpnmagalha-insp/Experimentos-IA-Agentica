@@ -1,6 +1,6 @@
-import { prisma } from '../lib/prisma'
 import { userRepository } from '../repositories/user.repository'
 import { goalRepository } from '../repositories/goal.repository'
+import { profileRepository } from '../repositories/profile.repository'
 import { calculateTmb, calcAge } from '../calculators/tmb.calculator'
 import { calculateMacroGoal } from '../calculators/macro-goal.calculator'
 import { NotFoundError } from '../lib/errors'
@@ -61,25 +61,13 @@ export const userService = {
       bodyFatPercent: data.bodyFatPercent,
     })
 
-    const profile = await prisma.userProfile.upsert({
-      where: { userId },
-      update: {
-        birthDate,
-        sex: data.sex,
-        heightCm: data.heightCm,
-        weightKg: data.weightKg,
-        bodyFatPercent: data.bodyFatPercent ?? null,
-        tmb,
-      },
-      create: {
-        userId,
-        birthDate,
-        sex: data.sex,
-        heightCm: data.heightCm,
-        weightKg: data.weightKg,
-        bodyFatPercent: data.bodyFatPercent ?? null,
-        tmb,
-      },
+    const profile = await profileRepository.upsert(userId, {
+      birthDate,
+      sex: data.sex,
+      heightCm: data.heightCm,
+      weightKg: data.weightKg,
+      bodyFatPercent: data.bodyFatPercent ?? null,
+      tmb,
     })
 
     const macros = calculateMacroGoal(tmb)
