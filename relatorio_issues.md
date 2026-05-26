@@ -414,9 +414,31 @@ curl -X POST http://localhost:3000/v1/auth/register \
 | ------- | ---------------------------------------------------------------------------------- | ------- |
 | NUT-144 | [backend] GET /users/me com perfil e meta atual                                    | Done    |
 | NUT-145 | [backend] PUT /users/me/profile com recálculo de TMB e metas                       | Done    |
-| NUT-146 | [frontend] ProfileScreen com idade calculada e modo visualização                   | Backlog |
+| NUT-146 | [frontend] ProfileScreen com idade calculada e modo visualização                   | Done    |
 | NUT-147 | [frontend] EditProfileScreen com preview de nova TMB                               | Backlog |
 | NUT-148 | [test-e2e] Perfil — editar peso recalcula meta e data de nascimento no modo edição | Backlog |
+
+#### NUT-146 — ProfileScreen `[Done - 2026-05-26]`
+
+**Arquivos criados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/mobile/src/screens/profile/ProfileScreen.tsx` | Tela de visualização do perfil: exibe nome, e-mail, idade calculada (sem expor birthDate), sexo, altura, peso, % gordura, TMB; botão Sair com `Alert.alert` → `AuthStore.logout()`; botão Editar desabilitado (aguarda NUT-147) |
+| `apps/mobile/src/screens/profile/__tests__/ProfileScreen.test.tsx` | 4 testes RNTL: renderiza dados, omite data de nascimento (R3.2/DR-03), exibe "—" quando bodyFatPercent null, logout com confirmação |
+| `apps/mobile/babel.config.js` | Babel config com `babel-preset-expo` — necessário para jest-expo |
+| `apps/mobile/jest.config.js` | Preset `jest-expo` + `moduleNameMapper` para `@nutri-ia/shared` + `transformIgnorePatterns` para módulos nativos |
+
+**Arquivos modificados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/mobile/src/navigation/index.tsx` | Remove `ProfilePlaceholder` inline; importa e registra `ProfileScreen` na tab `Profile` |
+| `apps/mobile/package.json` | +devDeps: `jest-expo@51`, `@testing-library/react-native@^12`, `react-test-renderer@18.2.0` |
+
+> **Nota técnica:** `age` já vem calculado pelo backend (GET /users/me usa `calcAge` server-side — DR-03 garantido na API). Botão Editar desabilitado com TODO explícito até NUT-147.
+
+---
 
 #### NUT-145 — PUT /users/me/profile `[Done - 2026-05-26]`
 
