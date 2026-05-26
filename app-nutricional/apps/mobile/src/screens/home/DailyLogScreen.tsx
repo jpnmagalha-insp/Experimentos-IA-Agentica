@@ -21,6 +21,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAppStore } from '../../store/app.store'
 import { useDailyLog, useDeleteLog, useUpdateLog } from '../../hooks/useDailyLog'
 import { useCurrentUser } from '../../hooks/useCurrentUser'
+import { colors } from '../../theme/colors'
+import { typography } from '../../theme/typography'
 import type { FoodLogItemDto, MealType } from '@nutri-ia/shared'
 import type { AppTabParamList, AppStackParamList } from '../../navigation'
 
@@ -186,7 +188,7 @@ function EditModal({ item, onClose, onSave, isLoading }: EditModalProps) {
             testID="edit-save-btn"
           >
             {isLoading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={colors.white} />
             ) : (
               <Text style={styles.modalSaveBtnText}>Salvar</Text>
             )}
@@ -290,7 +292,6 @@ export function DailyLogScreen({ navigation }: { navigation: DailyLogNavProp }) 
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Date navigation header */}
       <View style={styles.dateHeader}>
         <TouchableOpacity
           onPress={() => setSelectedDate(shiftDate(selectedDate, -1))}
@@ -310,7 +311,6 @@ export function DailyLogScreen({ navigation }: { navigation: DailyLogNavProp }) 
         </TouchableOpacity>
       </View>
 
-      {/* Calorie summary mini-card */}
       <TouchableOpacity
         style={styles.kcalCard}
         onPress={() => navigation.navigate('Report')}
@@ -328,7 +328,7 @@ export function DailyLogScreen({ navigation }: { navigation: DailyLogNavProp }) 
       </TouchableOpacity>
 
       {isLoading ? (
-        <ActivityIndicator style={styles.loader} color="#4CAF50" />
+        <ActivityIndicator style={styles.loader} color={colors.accent} />
       ) : (
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {MEAL_ORDER.map((mealType) => (
@@ -358,7 +358,7 @@ export function DailyLogScreen({ navigation }: { navigation: DailyLogNavProp }) 
 // ---------------------------------------------------------------------------
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: colors.paper },
 
   dateHeader: {
     flexDirection: 'row',
@@ -367,34 +367,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: colors.gray1,
   },
   dateArrow: { padding: 4 },
-  dateArrowText: { fontSize: 26, color: '#333', lineHeight: 30 },
-  dateArrowDisabled: { color: '#ccc' },
-  dateLabel: { fontSize: 16, fontWeight: '600', color: '#111' },
+  dateArrowText: { fontSize: 26, color: colors.ink, lineHeight: 30 },
+  dateArrowDisabled: { color: colors.gray2 },
+  dateLabel: { ...typography.headingS, color: colors.ink },
 
   kcalCard: {
     margin: 16,
     padding: 16,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: colors.white,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: colors.gray1,
   },
   kcalRow: { flexDirection: 'row', alignItems: 'baseline', marginBottom: 10 },
-  kcalConsumed: { fontSize: 28, fontWeight: '700', color: '#111' },
-  kcalSep: { fontSize: 18, color: '#bbb' },
-  kcalGoal: { fontSize: 16, color: '#666' },
+  kcalConsumed: { ...typography.heroNumber, color: colors.ink },
+  kcalSep: { fontSize: 18, color: colors.gray2 },
+  kcalGoal: { ...typography.bodyL, color: colors.ink2 },
   kcalBarTrack: {
     height: 6,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: colors.gray1,
     borderRadius: 3,
     overflow: 'hidden',
     marginBottom: 6,
   },
-  kcalBarFill: { height: '100%', backgroundColor: '#4CAF50', borderRadius: 3 },
-  kcalSub: { fontSize: 12, color: '#aaa' },
+  kcalBarFill: { height: '100%', backgroundColor: colors.accent, borderRadius: 3 },
+  kcalSub: { ...typography.caption, color: colors.ink3 },
 
   loader: { marginTop: 40 },
   scrollContent: { paddingBottom: 32 },
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     marginTop: 14,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: colors.gray1,
     overflow: 'hidden',
   },
   mealHeader: {
@@ -413,18 +413,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 14,
     paddingVertical: 11,
-    backgroundColor: '#fafafa',
+    backgroundColor: colors.paper,
   },
-  mealTitle: { fontSize: 15, fontWeight: '600', color: '#222' },
-  mealTotal: { fontSize: 12, color: '#999', marginTop: 1 },
+  mealTitle: { ...typography.headingS, color: colors.ink },
+  mealTotal: { ...typography.caption, color: colors.ink3, marginTop: 1 },
   addBtn: { paddingVertical: 2, paddingHorizontal: 6 },
-  addBtnText: { fontSize: 14, color: '#4CAF50', fontWeight: '600' },
-  mealEmpty: { fontSize: 13, color: '#bbb', paddingVertical: 14, textAlign: 'center' },
+  addBtnText: { ...typography.bodyS, color: colors.accent, fontWeight: '600' },
+  mealEmpty: { ...typography.caption, color: colors.gray2, paddingVertical: 14, textAlign: 'center' },
 
   logItemWrapper: {
     position: 'relative',
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: colors.gray1,
     overflow: 'hidden',
   },
   deleteBtn: {
@@ -433,12 +433,12 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: DELETE_BTN_WIDTH,
-    backgroundColor: '#e53935',
+    backgroundColor: colors.error,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  deleteBtnText: { color: '#fff', fontSize: 13, fontWeight: '600' },
-  logItem: { backgroundColor: '#fff' },
+  deleteBtnText: { color: colors.white, fontSize: 13, fontWeight: '600' },
+  logItem: { backgroundColor: colors.white },
   logItemInner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -447,14 +447,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   logItemLeft: { flex: 1, marginRight: 8 },
-  logItemName: { fontSize: 14, color: '#222' },
-  logItemQty: { fontSize: 12, color: '#aaa', marginTop: 2 },
-  logItemKcal: { fontSize: 14, fontWeight: '500', color: '#555' },
+  logItemName: { ...typography.bodyS, color: colors.ink },
+  logItemQty: { ...typography.caption, color: colors.ink3, marginTop: 2 },
+  logItemKcal: { ...typography.bodyS, color: colors.ink2 },
 
   modalOverlay: { flex: 1 },
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
   modalSheet: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.paper,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 24,
@@ -463,29 +463,30 @@ const styles = StyleSheet.create({
   modalHandle: {
     width: 40,
     height: 4,
-    backgroundColor: '#ddd',
+    backgroundColor: colors.gray2,
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 20,
   },
-  modalTitle: { fontSize: 16, fontWeight: '600', color: '#111', marginBottom: 16 },
-  modalLabel: { fontSize: 13, color: '#888', marginBottom: 6 },
+  modalTitle: { ...typography.headingS, color: colors.ink, marginBottom: 16 },
+  modalLabel: { ...typography.caption, color: colors.ink3, marginBottom: 6 },
   modalInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.gray2,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    fontSize: 16,
-    color: '#111',
+    ...typography.inputText,
+    color: colors.ink,
     marginBottom: 16,
+    backgroundColor: colors.white,
   },
   modalSaveBtn: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: colors.accent,
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
   },
   modalSaveBtnDisabled: { opacity: 0.6 },
-  modalSaveBtnText: { color: '#fff', fontWeight: '600', fontSize: 16 },
+  modalSaveBtnText: { ...typography.button, color: colors.white },
 })

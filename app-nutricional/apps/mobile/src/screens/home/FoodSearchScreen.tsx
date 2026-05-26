@@ -13,6 +13,8 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import type { AppStackParamList } from '../../navigation'
 import type { FoodDto } from '@nutri-ia/shared'
 import { useFoodSearch } from '../../hooks/useFoodSearch'
+import { colors } from '../../theme/colors'
+import { typography } from '../../theme/typography'
 
 type Props = NativeStackScreenProps<AppStackParamList, 'FoodSearch'>
 
@@ -68,7 +70,7 @@ export function FoodSearchScreen({ navigation, route }: Props) {
           value={query}
           onChangeText={handleChange}
           placeholder="Digite o nome do alimento..."
-          placeholderTextColor="#aaa"
+          placeholderTextColor={colors.ink3}
           autoFocus
           returnKeyType="search"
           clearButtonMode="while-editing"
@@ -127,44 +129,44 @@ export function FoodSearchScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: colors.paper },
 
   inputWrapper: {
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: colors.gray1,
   },
   input: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.gray1,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: Platform.OS === 'ios' ? 12 : 10,
-    fontSize: 16,
-    color: '#111',
+    ...typography.inputText,
+    color: colors.ink,
   },
 
   centeredState: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 },
-  hintText: { fontSize: 14, color: '#bbb', textAlign: 'center' },
-  emptyText: { fontSize: 15, color: '#888', textAlign: 'center' },
+  hintText: { ...typography.bodyS, color: colors.gray2, textAlign: 'center' },
+  emptyText: { ...typography.body, color: colors.ink3, textAlign: 'center' },
 
   skeletonItem: {
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#f5f5f5',
+    borderBottomColor: colors.paper,
   },
   skeletonLine: {
     height: 14,
     width: '60%',
-    backgroundColor: '#ececec',
+    backgroundColor: colors.gray1,
     borderRadius: 6,
     marginBottom: 8,
   },
   skeletonLineSub: {
     height: 11,
     width: '35%',
-    backgroundColor: '#f2f2f2',
+    backgroundColor: colors.gray1,
     borderRadius: 6,
   },
 
@@ -174,10 +176,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 14,
+    backgroundColor: colors.paper,
   },
   resultLeft: { flex: 1, marginRight: 12 },
-  resultName: { fontSize: 15, color: '#222' },
-  resultCategory: { fontSize: 12, color: '#aaa', marginTop: 3 },
-  resultKcal: { fontSize: 13, color: '#666', fontWeight: '500' },
-  separator: { height: 1, backgroundColor: '#f5f5f5', marginHorizontal: 16 },
+  resultName: { ...typography.body, color: colors.ink },
+  resultCategory: { ...typography.caption, color: colors.ink3, marginTop: 3 },
+  resultKcal: { ...typography.caption, color: colors.ink2, fontWeight: '500' },
+  separator: { height: 1, backgroundColor: colors.gray1, marginHorizontal: 16 },
 })

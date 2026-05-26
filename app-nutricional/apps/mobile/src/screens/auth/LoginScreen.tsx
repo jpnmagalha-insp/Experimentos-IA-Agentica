@@ -14,6 +14,9 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { z } from 'zod'
 import { api } from '../../lib/api'
 import { useAuthStore } from '../../store/auth.store'
+import { Logo } from '../../components/Logo'
+import { colors } from '../../theme/colors'
+import { typography } from '../../theme/typography'
 import type { AuthStackParamList } from '../../navigation'
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>
@@ -58,12 +61,10 @@ export function LoginScreen({ navigation }: Props) {
   }
 
   async function handleGoogleLogin() {
-    // TODO: instalar expo-auth-session e configurar Google OAuth
     Alert.alert('Em breve', 'Login com Google disponível em breve.')
   }
 
   async function handleAppleLogin() {
-    // TODO: instalar expo-auth-session e configurar Apple OAuth
     Alert.alert('Em breve', 'Login com Apple disponível em breve.')
   }
 
@@ -73,12 +74,15 @@ export function LoginScreen({ navigation }: Props) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={styles.inner}>
-        <Text style={styles.title}>Nutri IA</Text>
+        <View style={styles.logoWrapper}>
+          <Logo size="hero" />
+        </View>
         <Text style={styles.subtitle}>Entrar na sua conta</Text>
 
         <TextInput
           style={[styles.input, errors.email ? styles.inputError : null]}
           placeholder="E-mail"
+          placeholderTextColor={colors.ink3}
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
@@ -91,6 +95,7 @@ export function LoginScreen({ navigation }: Props) {
         <TextInput
           style={[styles.input, errors.password ? styles.inputError : null]}
           placeholder="Senha"
+          placeholderTextColor={colors.ink3}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -114,7 +119,7 @@ export function LoginScreen({ navigation }: Props) {
           testID="login-btn"
         >
           {loading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.white} />
           ) : (
             <Text style={styles.buttonText}>Entrar</Text>
           )}
@@ -140,24 +145,26 @@ export function LoginScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: colors.paper },
   inner: { flex: 1, justifyContent: 'center', paddingHorizontal: 24 },
-  title: { fontSize: 32, fontWeight: '700', color: '#4CAF50', textAlign: 'center', marginBottom: 4 },
-  subtitle: { fontSize: 16, color: '#666', textAlign: 'center', marginBottom: 32 },
+  logoWrapper: { alignItems: 'center', marginBottom: 32 },
+  subtitle: { ...typography.body, color: colors.ink2, textAlign: 'center', marginBottom: 32 },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.gray2,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    fontSize: 16,
+    ...typography.inputText,
+    color: colors.ink,
     marginBottom: 4,
+    backgroundColor: colors.white,
   },
-  inputError: { borderColor: '#E53935' },
-  error: { color: '#E53935', fontSize: 12, marginBottom: 8 },
+  inputError: { borderColor: colors.error },
+  error: { ...typography.caption, color: colors.error, marginBottom: 8 },
   forgotLink: { alignSelf: 'flex-end', marginBottom: 16 },
   button: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: colors.accent,
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
@@ -165,17 +172,18 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   buttonDisabled: { opacity: 0.6 },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  buttonText: { ...typography.button, color: colors.white },
   socialButton: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.gray2,
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
     marginBottom: 12,
     minHeight: 48,
+    backgroundColor: colors.white,
   },
-  socialButtonText: { fontSize: 16, color: '#333' },
+  socialButtonText: { ...typography.body, color: colors.ink },
   registerLink: { alignItems: 'center', marginTop: 8 },
-  link: { color: '#4CAF50', fontSize: 15 },
+  link: { ...typography.link, color: colors.accent },
 })

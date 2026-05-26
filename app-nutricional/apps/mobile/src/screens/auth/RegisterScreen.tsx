@@ -15,6 +15,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { z } from 'zod'
 import { api } from '../../lib/api'
 import { useAuthStore } from '../../store/auth.store'
+import { colors } from '../../theme/colors'
+import { typography } from '../../theme/typography'
 import type { AuthStackParamList } from '../../navigation'
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>
@@ -36,9 +38,9 @@ const schema = z
   })
 
 function passwordStrength(p: string): { label: string; color: string } {
-  if (p.length === 0) return { label: '', color: '#ddd' }
+  if (p.length === 0) return { label: '', color: colors.gray2 }
   const score = [p.length >= 8, /[A-Z]/.test(p), /[0-9]/.test(p), /[^A-Za-z0-9]/.test(p)].filter(Boolean).length
-  if (score <= 1) return { label: 'Fraca', color: '#E53935' }
+  if (score <= 1) return { label: 'Fraca', color: colors.error }
   if (score === 2) return { label: 'Média', color: '#FB8C00' }
   if (score === 3) return { label: 'Boa', color: '#43A047' }
   return { label: 'Forte', color: '#1B5E20' }
@@ -97,6 +99,7 @@ export function RegisterScreen({ navigation }: Props) {
         <TextInput
           style={[styles.input, errors.name ? styles.inputError : null]}
           placeholder="Nome completo"
+          placeholderTextColor={colors.ink3}
           value={name}
           onChangeText={setName}
           accessibilityLabel="Campo nome"
@@ -106,6 +109,7 @@ export function RegisterScreen({ navigation }: Props) {
         <TextInput
           style={[styles.input, errors.email ? styles.inputError : null]}
           placeholder="E-mail"
+          placeholderTextColor={colors.ink3}
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
@@ -117,6 +121,7 @@ export function RegisterScreen({ navigation }: Props) {
         <TextInput
           style={[styles.input, errors.password ? styles.inputError : null]}
           placeholder="Senha"
+          placeholderTextColor={colors.ink3}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -133,6 +138,7 @@ export function RegisterScreen({ navigation }: Props) {
         <TextInput
           style={[styles.input, errors.confirm ? styles.inputError : null]}
           placeholder="Confirmar senha"
+          placeholderTextColor={colors.ink3}
           value={confirm}
           onChangeText={setConfirm}
           secureTextEntry
@@ -146,7 +152,7 @@ export function RegisterScreen({ navigation }: Props) {
           disabled={loading}
           accessibilityLabel="Botão criar conta"
         >
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Criar conta</Text>}
+          {loading ? <ActivityIndicator color={colors.white} /> : <Text style={styles.buttonText}>Criar conta</Text>}
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.loginLink} onPress={() => navigation.goBack()}>
@@ -158,25 +164,27 @@ export function RegisterScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: colors.paper },
   inner: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 40 },
-  title: { fontSize: 28, fontWeight: '700', color: '#333', marginBottom: 28, textAlign: 'center' },
+  title: { ...typography.displayL, color: colors.ink, marginBottom: 28, textAlign: 'center' },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.gray2,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    fontSize: 16,
+    ...typography.inputText,
+    color: colors.ink,
     marginBottom: 4,
+    backgroundColor: colors.white,
   },
-  inputError: { borderColor: '#E53935' },
-  error: { color: '#E53935', fontSize: 12, marginBottom: 8 },
+  inputError: { borderColor: colors.error },
+  error: { ...typography.caption, color: colors.error, marginBottom: 8 },
   strengthRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
   strengthBar: { height: 4, width: 60, borderRadius: 2, marginRight: 8 },
-  strengthLabel: { fontSize: 12 },
+  strengthLabel: { ...typography.caption },
   button: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: colors.accent,
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
@@ -185,7 +193,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   buttonDisabled: { opacity: 0.6 },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  buttonText: { ...typography.button, color: colors.white },
   loginLink: { alignItems: 'center', marginTop: 4 },
-  link: { color: '#4CAF50', fontSize: 15 },
+  link: { ...typography.link, color: colors.accent },
 })
