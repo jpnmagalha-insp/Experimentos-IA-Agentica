@@ -416,7 +416,7 @@ curl -X POST http://localhost:3000/v1/auth/register \
 | NUT-145 | [backend] PUT /users/me/profile com recálculo de TMB e metas                       | Done    |
 | NUT-146 | [frontend] ProfileScreen com idade calculada e modo visualização                   | Done    |
 | NUT-147 | [frontend] EditProfileScreen com preview de nova TMB                               | Done    |
-| NUT-148 | [test-e2e] Perfil — editar peso recalcula meta e data de nascimento no modo edição | Backlog |
+| NUT-148 | [test-e2e] Perfil — editar peso recalcula meta e data de nascimento no modo edição | Done |
 
 #### NUT-146 — ProfileScreen `[Done - 2026-05-26]`
 
@@ -482,6 +482,18 @@ curl -X POST http://localhost:3000/v1/auth/register \
 | `apps/api/src/routes/users.routes.test.ts` | +13 testes para `PUT /users/me/profile`: 200 Mifflin, 200 Katch-McArdle, 400 para cada range fora de DR-10, 400 idade < 10/> 120 anos, 400 data futura, 400 sex inválido, 401 sem token |
 
 > **Nota técnica:** Refine de idade duplica `calcAge` propositalmente — `@nutri-ia/shared` não pode depender de `apps/api`. `onboardingSchema` e `updateProfileSchema` coexistem com ranges propositalmente diferentes (onboarding permissivo, update estrito DR-10).
+
+#### NUT-148 — [test-e2e] Perfil `[Done - 2026-05-26]`
+
+**Arquivos criados/alterados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/mobile/e2e/profile.test.ts` | Suite Detox com 3 cenários Gherkin: (1) peso 82→80 recalcula TMB e kcal-goal no DailyLog, (2) ProfileScreen mostra idade calculada sem expor data de nascimento, (3) campo birthDate visível apenas no EditProfileScreen |
+| `apps/mobile/e2e/setup.ts` | Adiciona helper `updateProfile(accessToken, payload)` — PUT `/v1/users/me/profile` via axios; padrão idêntico a `seedLog`/`clearLogs` |
+| `apps/mobile/src/screens/home/DailyLogScreen.tsx` | Adiciona `testID="kcal-goal"` ao `<Text>` que exibe `{goalCalories} kcal` (necessário para asserção do cenário 1) |
+
+> **Nota técnica:** a data `1990-05-15` resulta em 36 anos em 2026-05-26, divergindo do Gherkin original ("35 anos", escrito em 2025). O teste calcula a idade dinamicamente via `calcAge(BIRTH_DATE)` e documenta a divergência em comentário inline. Valores de TMB e meta calórica também derivados em runtime via `calcTmb()` (mesma função do backend), evitando hard-coding frágil.
 
 ---
 
