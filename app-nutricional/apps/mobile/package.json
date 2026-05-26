@@ -2,7 +2,7 @@
   "name": "@nutri-ia/mobile",
   "version": "0.0.1",
   "private": true,
-  "main": "App.tsx",
+  "main": "index.js",
   "scripts": {
     "start": "expo start",
     "dev": "expo start",

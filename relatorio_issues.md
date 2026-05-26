@@ -432,3 +432,43 @@ curl -X POST http://localhost:3000/v1/auth/register \
 | NUT-153 | [test-e2e] Fluxo E2E: editar perfil → confirmar recálculo de meta           | Backlog |
 | NUT-154 | [test-e2e] Fluxo E2E: offline → modo somente-leitura de cache               | Backlog |
 | NUT-155 | Checklist de release: acessibilidade, contraste e toque mínimo              | Backlog |
+
+---
+
+## Correções Avulsas
+
+#### fix — `jwt.ts`: variável de ambiente errada para o access token `[Fix - 2026-05-25]`
+
+**Problema:** `ACCESS_SECRET` lia `process.env.JWT_SECRET`, que não existe no `.env`. Em runtime o valor ficava `undefined`, quebrando toda validação de token de acesso.
+
+**Arquivos alterados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/api/src/lib/jwt.ts` | `ACCESS_SECRET` corrigido para `process.env.JWT_ACCESS_SECRET ?? process.env.JWT_SECRET` (fallback de compatibilidade); removidas asserções `!` |
+
+---
+
+#### fix — mobile: entry point incorreto no `package.json` `[Fix - 2026-05-25]`
+
+**Problema:** `"main": "App.tsx"` pulava o `registerRootComponent` exigido pelo Expo, causando falha em builds standalone/produção. Além disso o arquivo `index.js` e os assets obrigatórios nunca foram commitados.
+
+**Arquivos alterados/adicionados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/mobile/package.json` | `"main"` corrigido de `"App.tsx"` para `"index.js"` |
+| `apps/mobile/index.js` | Criado: chama `registerRootComponent(App)` — entry point obrigatório do Expo |
+| `apps/mobile/assets/` | Assets do Expo adicionados: `icon.png`, `splash.png`, `adaptive-icon.png`, `favicon.png` |
+
+---
+
+#### fix — prisma: migration `add_refresh_tokens` não estava commitada `[Fix - 2026-05-25]`
+
+**Problema:** A migration foi gerada localmente mas nunca commitada, causando divergência entre o schema Prisma e o banco em qualquer ambiente novo (CI, staging, onboarding de dev).
+
+**Arquivos adicionados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/api/prisma/migrations/20260522203120_add_refresh_tokens/migration.sql` | Cria tabela `refresh_tokens` com `token_hash` único e FK `user_id → users(id) ON DELETE CASCADE` |
