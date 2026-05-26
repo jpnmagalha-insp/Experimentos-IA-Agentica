@@ -13,7 +13,7 @@ describe('fontFamilies', () => {
 
 describe('typography', () => {
   it('todos os estilos têm fontFamily e fontSize', () => {
-    Object.entries(typography).forEach(([key, style]) => {
+    Object.entries(typography).forEach(([_key, style]) => {
       expect(style).toHaveProperty('fontFamily')
       expect(style).toHaveProperty('fontSize')
       expect(typeof style.fontSize).toBe('number')

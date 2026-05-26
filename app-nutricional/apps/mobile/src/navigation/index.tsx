@@ -11,6 +11,7 @@ import { OnboardingScreen } from '../screens/auth/OnboardingScreen'
 import { DailyLogScreen } from '../screens/home/DailyLogScreen'
 import { FoodSearchScreen } from '../screens/home/FoodSearchScreen'
 import { FoodDetailScreen } from '../screens/home/FoodDetailScreen'
+import { DailyReportScreen } from '../screens/report/DailyReportScreen'
 import { colors } from '../theme/colors'
 import { typography } from '../theme/typography'
 import type { MealType, FoodDto } from '@nutri-ia/shared'
@@ -48,14 +49,6 @@ function AuthNavigator() {
   )
 }
 
-function ReportPlaceholder() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.paper }}>
-      <Text style={{ ...typography.body, color: colors.ink3 }}>Relatório — Em breve</Text>
-    </View>
-  )
-}
-
 function ProfilePlaceholder() {
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.paper }}>
@@ -75,7 +68,7 @@ function TabNavigator() {
       }}
     >
       <AppTab.Screen name="Home" component={DailyLogScreen} options={{ title: 'Início' }} />
-      <AppTab.Screen name="Report" component={ReportPlaceholder} options={{ title: 'Relatório' }} />
+      <AppTab.Screen name="Report" component={DailyReportScreen} options={{ title: 'Relatório' }} />
       <AppTab.Screen name="Profile" component={ProfilePlaceholder} options={{ title: 'Perfil' }} />
     </AppTab.Navigator>
   )

@@ -399,10 +399,48 @@ curl -X POST http://localhost:3000/v1/auth/register \
 
 | Issue   | Título                                                                         | Status  |
 | ------- | ------------------------------------------------------------------------------ | ------- |
-| NUT-139 | [backend] GET /reports/daily com balanço calórico (DR-09)                      | Backlog |
-| NUT-140 | [frontend] DailyReportScreen com barras de progresso                           | Backlog |
-| NUT-141 | [frontend] Compartilhar selectedDate entre DailyLog e DailyReport via AppStore | Backlog |
+| NUT-139 | [backend] GET /reports/daily com balanço calórico (DR-09)                      | `Done`  |
+| NUT-140 | [frontend] DailyReportScreen com barras de progresso                           | `Done`  |
+| NUT-141 | [frontend] Compartilhar selectedDate entre DailyLog e DailyReport via AppStore | `Done`  |
 | NUT-142 | [test-e2e] Relatório — déficit, superávit, on_target e histórico               | Backlog |
+
+---
+
+#### NUT-139 — GET /reports/daily `[Done - 2026-05-26]`
+
+**Arquivos criados/alterados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `packages/shared/src/index.ts` | `dailyReportQuerySchema` (date YYYY-MM-DD, default hoje), `balanceStatusSchema` (`deficit \| surplus \| on_target`), `dailyReportResponseSchema` (goal, consumed, balance, progress); tipos `DailyReportQueryDto`, `BalanceStatus`, `DailyReportResponseDto` |
+| `apps/api/src/repositories/report.repository.ts` | Novo: `ReportRepository` com `getConsumedByUserAndDate()` via `prisma.foodLog.aggregate({ _sum })` (uma query SQL) e `getLatestGoal()` delegando ao `goalRepository.findLatestByUser` |
+| `apps/api/src/services/report.service.ts` | Novo: `ReportService.getDailyReport()`: busca goal + consumed em paralelo (`Promise.all`), lança `NotFoundError` se sem meta, aplica DR-09 (`balance = consumed − goal`; limiar ±50 kcal), calcula progress com `safeDiv` (sem divisão por zero) |
+| `apps/api/src/routes/reports.routes.ts` | Novo: plugin `reportsPlugin`, `GET /reports/daily` com `preHandler: authenticate`, `safeParse` do `dailyReportQuerySchema`, `400` em validação falha |
+| `apps/api/src/routes/reports.routes.test.ts` | Novo: 10 testes via `fastify.inject()`: status `deficit`, `surplus`, `on_target`, dia sem registros (consumed zero + balance = −meta), campos `progress`, date inválida → 400, default hoje, `404` sem meta, `401` sem auth, `userId` + `date` propagados |
+| `apps/api/src/server.ts` | Instancia `ReportRepository` e `ReportService`; registra `reportsPlugin` com prefixo `/v1` |
+
+> **Decisão técnica:** `prisma.foodLog.aggregate` em vez de `findByUserAndDate` + somar em JS — uma única query SQL evita transferência de todas as linhas para a memória da aplicação.
+
+---
+
+#### NUT-140 — DailyReportScreen `[Done - 2026-05-26]`
+
+**Arquivos criados/alterados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/mobile/src/theme/colors.ts` | `success: '#4CAF50'` e `info: '#2196F3'` adicionados para cores de status (déficit = verde, on_target = azul) |
+| `apps/mobile/src/hooks/useDailyReport.ts` | Novo: TanStack Query com cache key `['report', date]`, `GET /reports/daily?date=`; já é invalidado pelos hooks `useCreateLog`, `useDeleteLog` e `useUpdateLog` existentes |
+| `apps/mobile/src/screens/report/DailyReportScreen.tsx` | Novo: card calórico (consumido/meta + barra de progresso + label de balanço) cuja borda e cor mudam conforme `balance.status`; três `MacroRow` (Proteína, Gordura, Carboidrato) com barras de progresso e valores em gramas; navegação de datas com setas ← → e bloqueio em hoje |
+| `apps/mobile/src/navigation/index.tsx` | `ReportPlaceholder` removido; tab `Report` aponta para `DailyReportScreen`; import adicionado |
+
+---
+
+#### NUT-141 — selectedDate compartilhado via AppStore `[Done - 2026-05-26]`
+
+`AppStore` com `selectedDate` e `setSelectedDate` já estava implementado em `app.store.ts` desde M3. `DailyLogScreen` já lia e escrevia o store. Esta issue foi concluída ao fazer `DailyReportScreen` consumir o mesmo `useAppStore()` — qualquer mudança de data em qualquer aba reflete na outra via Zustand.
+
+**Sem novos arquivos** — satisfeito como subproduto do NUT-140.
 
 ---
 
