@@ -9,6 +9,8 @@ export const colors = {
   gray1: '#ececea',
   gray2: '#d8d8d4',
   error: '#E53935',
+  success: '#4CAF50',
+  info: '#2196F3',
 } as const
 
 export type ColorKey = keyof typeof colors

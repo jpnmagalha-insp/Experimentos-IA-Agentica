@@ -159,3 +159,31 @@ export type FoodIdParamDto = z.infer<typeof foodIdParamSchema>
 export type DailyLogsQueryDto = z.infer<typeof dailyLogsQuerySchema>
 export type FoodLogItemDto = z.infer<typeof foodLogItemSchema>
 export type DailyLogsResponseDto = z.infer<typeof dailyLogsResponseSchema>
+
+// --- Reports ---
+
+export const dailyReportQuerySchema = z.object({
+  date: z.string().date().default(() => new Date().toISOString().slice(0, 10)),
+})
+
+export const balanceStatusSchema = z.enum(['deficit', 'surplus', 'on_target'])
+
+export const dailyReportResponseSchema = z.object({
+  date: z.string().date(),
+  goal: macroResultSchema,
+  consumed: macroResultSchema,
+  balance: z.object({
+    calories: z.number(),
+    status: balanceStatusSchema,
+  }),
+  progress: z.object({
+    calories: z.number(),
+    proteinG: z.number(),
+    fatG: z.number(),
+    carbG: z.number(),
+  }),
+})
+
+export type DailyReportQueryDto = z.infer<typeof dailyReportQuerySchema>
+export type BalanceStatus = z.infer<typeof balanceStatusSchema>
+export type DailyReportResponseDto = z.infer<typeof dailyReportResponseSchema>
