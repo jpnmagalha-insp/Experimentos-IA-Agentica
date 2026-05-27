@@ -495,6 +495,16 @@ curl -X POST http://localhost:3000/v1/auth/register \
 
 > **Nota técnica:** a data `1990-05-15` resulta em 36 anos em 2026-05-26, divergindo do Gherkin original ("35 anos", escrito em 2025). O teste calcula a idade dinamicamente via `calcAge(BIRTH_DATE)` e documenta a divergência em comentário inline. Valores de TMB e meta calórica também derivados em runtime via `calcTmb()` (mesma função do backend), evitando hard-coding frágil.
 
+#### chore: ícones na tab bar `[Done - 2026-05-27]`
+
+**Problema:** os três tabs (Início, Relatório, Perfil) não tinham `tabBarIcon` definido, exibindo o placeholder quebrado (retângulo com X) do React Navigation.
+
+**Arquivo modificado:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/mobile/src/navigation/index.tsx` | Importa `Ionicons` de `@expo/vector-icons`; adiciona `tabBarIcon` com `home-outline`, `bar-chart-outline` e `person-outline` em cada `AppTab.Screen` |
+
 ---
 
 ## M6 — Testes E2E & Release 1.0

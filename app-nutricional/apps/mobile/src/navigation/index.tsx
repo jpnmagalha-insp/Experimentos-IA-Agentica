@@ -3,6 +3,7 @@ import { ActivityIndicator, View, Text } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { Ionicons } from '@expo/vector-icons'
 import { useAuthStore } from '../store/auth.store'
 import { LoginScreen } from '../screens/auth/LoginScreen'
 import { RegisterScreen } from '../screens/auth/RegisterScreen'
@@ -69,9 +70,30 @@ function TabNavigator() {
         tabBarStyle: { backgroundColor: colors.white, borderTopColor: colors.gray1 },
       }}
     >
-      <AppTab.Screen name="Home" component={DailyLogScreen} options={{ title: 'Início' }} />
-      <AppTab.Screen name="Report" component={ReportPlaceholder} options={{ title: 'Relatório' }} />
-      <AppTab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Perfil' }} />
+      <AppTab.Screen
+        name="Home"
+        component={DailyLogScreen}
+        options={{
+          title: 'Início',
+          tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" size={size} color={color} />,
+        }}
+      />
+      <AppTab.Screen
+        name="Report"
+        component={ReportPlaceholder}
+        options={{
+          title: 'Relatório',
+          tabBarIcon: ({ color, size }) => <Ionicons name="bar-chart-outline" size={size} color={color} />,
+        }}
+      />
+      <AppTab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          title: 'Perfil',
+          tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} />,
+        }}
+      />
     </AppTab.Navigator>
   )
 }
