@@ -1,5 +1,3 @@
-import 'expo/build/Expo.fx'
-import { registerRootComponent } from 'expo'
 import { useFonts } from 'expo-font'
 import {
   Newsreader_400Regular,
@@ -55,4 +53,4 @@ function App() {
   )
 }
 
-registerRootComponent(App)
+export default App
