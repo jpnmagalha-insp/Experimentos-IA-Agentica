@@ -319,7 +319,7 @@ export function DailyLogScreen({ navigation }: { navigation: DailyLogNavProp }) 
         <View style={styles.kcalRow}>
           <Text style={styles.kcalConsumed} testID="kcal-consumed">{Math.round(totalCalories)}</Text>
           <Text style={styles.kcalSep}> / </Text>
-          <Text style={styles.kcalGoal}>{goalCalories} kcal</Text>
+          <Text style={styles.kcalGoal} testID="kcal-goal">{goalCalories} kcal</Text>
         </View>
         <View style={styles.kcalBarTrack}>
           <View style={[styles.kcalBarFill, { width: `${progressPercent}%` }]} />

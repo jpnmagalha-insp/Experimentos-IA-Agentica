@@ -450,11 +450,98 @@ curl -X POST http://localhost:3000/v1/auth/register \
 
 | Issue   | Título                                                                             | Status  |
 | ------- | ---------------------------------------------------------------------------------- | ------- |
-| NUT-144 | [backend] GET /users/me com perfil e meta atual                                    | Backlog |
-| NUT-145 | [backend] PUT /users/me/profile com recálculo de TMB e metas                       | Backlog |
-| NUT-146 | [frontend] ProfileScreen com idade calculada e modo visualização                   | Backlog |
-| NUT-147 | [frontend] EditProfileScreen com preview de nova TMB                               | Backlog |
-| NUT-148 | [test-e2e] Perfil — editar peso recalcula meta e data de nascimento no modo edição | Backlog |
+| NUT-144 | [backend] GET /users/me com perfil e meta atual                                    | Done    |
+| NUT-145 | [backend] PUT /users/me/profile com recálculo de TMB e metas                       | Done    |
+| NUT-146 | [frontend] ProfileScreen com idade calculada e modo visualização                   | Done    |
+| NUT-147 | [frontend] EditProfileScreen com preview de nova TMB                               | Done    |
+| NUT-148 | [test-e2e] Perfil — editar peso recalcula meta e data de nascimento no modo edição | Done |
+
+#### NUT-146 — ProfileScreen `[Done - 2026-05-26]`
+
+**Arquivos criados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/mobile/src/screens/profile/ProfileScreen.tsx` | Tela de visualização do perfil: exibe nome, e-mail, idade calculada (sem expor birthDate), sexo, altura, peso, % gordura, TMB; botão Sair com `Alert.alert` → `AuthStore.logout()`; botão Editar desabilitado (aguarda NUT-147) |
+| `apps/mobile/src/screens/profile/__tests__/ProfileScreen.test.tsx` | 4 testes RNTL: renderiza dados, omite data de nascimento (R3.2/DR-03), exibe "—" quando bodyFatPercent null, logout com confirmação |
+| `apps/mobile/babel.config.js` | Babel config com `babel-preset-expo` — necessário para jest-expo |
+| `apps/mobile/jest.config.js` | Preset `jest-expo` + `moduleNameMapper` para `@nutri-ia/shared` + `transformIgnorePatterns` para módulos nativos |
+
+**Arquivos modificados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/mobile/src/navigation/index.tsx` | Remove `ProfilePlaceholder` inline; importa e registra `ProfileScreen` na tab `Profile` |
+| `apps/mobile/package.json` | +devDeps: `jest-expo@51`, `@testing-library/react-native@^12`, `react-test-renderer@18.2.0` |
+
+> **Nota técnica:** `age` já vem calculado pelo backend (GET /users/me usa `calcAge` server-side — DR-03 garantido na API). Botão Editar desabilitado com TODO explícito até NUT-147.
+
+---
+
+#### NUT-147 — EditProfileScreen `[Done - 2026-05-26]`
+
+**Arquivos criados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/mobile/src/lib/tmb.ts` | Extrai `calcAge` e `calcTmb` do OnboardingScreen para lib reutilizável (DR-01, DR-02) |
+| `apps/mobile/src/hooks/useUpdateProfile.ts` | TanStack Mutation: chama `PUT /users/me/profile`, invalida query `['user', 'me']` no `onSuccess` |
+| `apps/mobile/src/screens/profile/EditProfileScreen.tsx` | Formulário pré-preenchido via `useCurrentUser()`; preview TMB em tempo real; validação via `updateProfileSchema.safeParse()` (DR-10); salva e navega de volta |
+| `apps/mobile/src/screens/profile/__tests__/EditProfileScreen.test.tsx` | 13 testes RNTL: pré-preenchimento, data editável (R3.3), preview TMB em tempo real, validação DR-10, submit correto, navegação pós-sucesso, Alert de erro |
+
+**Arquivos modificados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/mobile/src/navigation/index.tsx` | Adiciona `EditProfile: undefined` ao `AppStackParamList`; registra `EditProfileScreen` como modal (mesmo padrão de `FoodSearch`) |
+| `apps/mobile/src/screens/profile/ProfileScreen.tsx` | Habilita botão "Editar": remove `disabled`, adiciona `useNavigation`, navega para `EditProfile` |
+| `apps/mobile/src/screens/auth/OnboardingScreen.tsx` | Remove funções locais `calcAge`/`calcTmb`; importa da lib `../../lib/tmb` |
+| `apps/mobile/src/screens/profile/__tests__/ProfileScreen.test.tsx` | Adiciona mock de `@react-navigation/native` para `useNavigation` |
+
+> **Nota técnica:** `calcTmb` era duplicada em `OnboardingScreen`. Extraída para `lib/tmb.ts` e reutilizada em `EditProfileScreen`. Preview de TMB calculado localmente com DR-01 (Mifflin-St Jeor) ou DR-02 (Katch-McArdle quando `bodyFatPercent` presente), sem chamar a API.
+
+---
+
+#### NUT-145 — PUT /users/me/profile `[Done - 2026-05-26]`
+
+**Arquivos criados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/api/src/repositories/profile.repository.ts` | Singleton `profileRepository` com `upsert(userId, data)` via `prisma.userProfile.upsert` — isola acesso ao Prisma no service (DA-05) |
+
+**Arquivos modificados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `packages/shared/src/index.ts` | `updateProfileSchema`: ranges DR-10 (altura 100-250, peso 30-300, gordura 3-70) + `.refine()` de idade (10-120 anos); `updateProfileResponseSchema` composto de `userProfileResponseSchema + macroResultSchema`; tipos `UpdateProfileDto`, `UpdateProfileResponseDto` |
+| `apps/api/src/services/user.service.ts` | `upsertProfile` passa a usar `profileRepository.upsert` em vez de `prisma.userProfile.upsert` diretamente; lógica de cálculo (calcAge → calculateTmb → calculateMacroGoal → goalRepository.create) preservada |
+| `apps/api/src/routes/users.routes.ts` | Remove `profileBody` inline; importa `updateProfileSchema` de `@nutri-ia/shared`; alinha com convenção de `logs.routes.ts` e `foods.routes.ts` |
+| `apps/api/src/routes/users.routes.test.ts` | +13 testes para `PUT /users/me/profile`: 200 Mifflin, 200 Katch-McArdle, 400 para cada range fora de DR-10, 400 idade < 10/> 120 anos, 400 data futura, 400 sex inválido, 401 sem token |
+
+> **Nota técnica:** Refine de idade duplica `calcAge` propositalmente — `@nutri-ia/shared` não pode depender de `apps/api`. `onboardingSchema` e `updateProfileSchema` coexistem com ranges propositalmente diferentes (onboarding permissivo, update estrito DR-10).
+
+#### NUT-148 — [test-e2e] Perfil `[Done - 2026-05-26]`
+
+**Arquivos criados/alterados:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/mobile/e2e/profile.test.ts` | Suite Detox com 3 cenários Gherkin: (1) peso 82→80 recalcula TMB e kcal-goal no DailyLog, (2) ProfileScreen mostra idade calculada sem expor data de nascimento, (3) campo birthDate visível apenas no EditProfileScreen |
+| `apps/mobile/e2e/setup.ts` | Adiciona helper `updateProfile(accessToken, payload)` — PUT `/v1/users/me/profile` via axios; padrão idêntico a `seedLog`/`clearLogs` |
+| `apps/mobile/src/screens/home/DailyLogScreen.tsx` | Adiciona `testID="kcal-goal"` ao `<Text>` que exibe `{goalCalories} kcal` (necessário para asserção do cenário 1) |
+
+> **Nota técnica:** a data `1990-05-15` resulta em 36 anos em 2026-05-26, divergindo do Gherkin original ("35 anos", escrito em 2025). O teste calcula a idade dinamicamente via `calcAge(BIRTH_DATE)` e documenta a divergência em comentário inline. Valores de TMB e meta calórica também derivados em runtime via `calcTmb()` (mesma função do backend), evitando hard-coding frágil.
+
+#### chore: ícones na tab bar `[Done - 2026-05-27]`
+
+**Problema:** os três tabs (Início, Relatório, Perfil) não tinham `tabBarIcon` definido, exibindo o placeholder quebrado (retângulo com X) do React Navigation.
+
+**Arquivo modificado:**
+
+| Arquivo | Descrição |
+| ------- | --------- |
+| `apps/mobile/src/navigation/index.tsx` | Importa `Ionicons` de `@expo/vector-icons`; adiciona `tabBarIcon` com `home-outline`, `bar-chart-outline` e `person-outline` em cada `AppTab.Screen` |
 
 ---
 

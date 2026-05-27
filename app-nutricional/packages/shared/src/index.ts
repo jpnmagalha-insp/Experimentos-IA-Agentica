@@ -139,6 +139,66 @@ export const dailyLogsResponseSchema = z.object({
   totals: macroResultSchema,
 })
 
+// --- User Profile Response ---
+
+export const userProfileResponseSchema = z.object({
+  birthDate: z.string().date(),
+  sex: sexSchema,
+  heightCm: z.number(),
+  weightKg: z.number(),
+  bodyFatPercent: z.number().nullable(),
+  tmb: z.number(),
+  age: z.number().int(),
+})
+
+export const getMeResponseSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  email: z.string().email(),
+  emailVerified: z.boolean(),
+  profile: userProfileResponseSchema.nullable(),
+  currentGoal: macroResultSchema.nullable(),
+})
+
+// --- Update Profile ---
+
+export const updateProfileSchema = z
+  .object({
+    birthDate: z.string().date('Data de nascimento inválida'),
+    sex: sexSchema,
+    heightCm: z
+      .number()
+      .min(100, 'Altura mínima é 100 cm')
+      .max(250, 'Altura máxima é 250 cm'),
+    weightKg: z
+      .number()
+      .min(30, 'Peso mínimo é 30 kg')
+      .max(300, 'Peso máximo é 300 kg'),
+    bodyFatPercent: z
+      .number()
+      .min(3, 'Percentual de gordura mínimo é 3%')
+      .max(70, 'Percentual de gordura máximo é 70%')
+      .optional()
+      .nullable(),
+  })
+  // duplica calcAge propositalmente: @nutri-ia/shared não pode depender de apps/api
+  .refine(
+    (data) => {
+      const birth = new Date(data.birthDate)
+      const today = new Date()
+      let age = today.getFullYear() - birth.getFullYear()
+      const m = today.getMonth() - birth.getMonth()
+      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+      return age >= 10 && age <= 120
+    },
+    { message: 'Idade deve estar entre 10 e 120 anos', path: ['birthDate'] },
+  )
+
+export const updateProfileResponseSchema = z.object({
+  profile: userProfileResponseSchema,
+  currentGoal: macroResultSchema,
+})
+
 // --- Types ---
 
 export type LoginDto = z.infer<typeof loginSchema>
@@ -159,6 +219,10 @@ export type FoodIdParamDto = z.infer<typeof foodIdParamSchema>
 export type DailyLogsQueryDto = z.infer<typeof dailyLogsQuerySchema>
 export type FoodLogItemDto = z.infer<typeof foodLogItemSchema>
 export type DailyLogsResponseDto = z.infer<typeof dailyLogsResponseSchema>
+export type UserProfileResponseDto = z.infer<typeof userProfileResponseSchema>
+export type GetMeResponseDto = z.infer<typeof getMeResponseSchema>
+export type UpdateProfileDto = z.infer<typeof updateProfileSchema>
+export type UpdateProfileResponseDto = z.infer<typeof updateProfileResponseSchema>
 
 // --- Reports ---
 

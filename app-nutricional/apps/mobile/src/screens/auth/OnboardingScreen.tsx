@@ -12,35 +12,12 @@ import {
 } from 'react-native'
 import { api } from '../../lib/api'
 import { useAuthStore } from '../../store/auth.store'
+import { calcAge, calcTmb } from '../../lib/tmb'
 import { colors } from '../../theme/colors'
 import { typography } from '../../theme/typography'
 
 type Step = 'birthDate' | 'sex' | 'height' | 'weight' | 'bodyFat' | 'confirm'
 const STEPS: Step[] = ['birthDate', 'sex', 'height', 'weight', 'bodyFat', 'confirm']
-
-function calcAge(birthDate: string): number {
-  const birth = new Date(birthDate)
-  const today = new Date()
-  let age = today.getFullYear() - birth.getFullYear()
-  const m = today.getMonth() - birth.getMonth()
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
-  return age
-}
-
-function calcTmb(
-  sex: 'male' | 'female',
-  weightKg: number,
-  heightCm: number,
-  ageYears: number,
-  bodyFatPercent?: number,
-): number {
-  if (bodyFatPercent != null) {
-    const lean = weightKg * (1 - bodyFatPercent / 100)
-    return 370 + 21.6 * lean
-  }
-  const base = 10 * weightKg + 6.25 * heightCm - 5 * ageYears
-  return sex === 'male' ? base + 5 : base - 161
-}
 
 export function OnboardingScreen() {
   const [step, setStep] = useState<Step>('birthDate')
